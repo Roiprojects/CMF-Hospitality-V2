@@ -67,7 +67,7 @@ export function getTimelineConfiguration(): { scenes: SceneConfig[]; totalWeight
       safeTextArea: s.safeTextArea || 'left-column',
       focalPoint: s.focalPoint || { x: 0.5, y: 0.5 },
       transition: s.transition || { type: 'shutter', frames: 2 },
-      knownLimitations: s.knownLimitations,
+      knownLimitations: (s as { knownLimitations?: string }).knownLimitations,
       posterImage: s.posterImage,
       stillFrame: s.stillFrame,
       startProgress,
@@ -81,11 +81,11 @@ export function getTimelineConfiguration(): { scenes: SceneConfig[]; totalWeight
 
 const { scenes: SCENE_TIMELINE } = getTimelineConfiguration();
 
-// Memory bounds: strictly never load all 1,920 frames into memory
-const MAX_LOADED_CACHE = 32;
-const FORWARD_PRELOAD = 14;
-const BACKWARD_PRELOAD = 6;
-const MAX_CONCURRENT_REQUESTS = 6;
+// Memory bounds: strictly bounded cache to ensure ultra-smooth 60fps scrubbing
+const MAX_LOADED_CACHE = 160;
+const FORWARD_PRELOAD = 18;
+const BACKWARD_PRELOAD = 8;
+const MAX_CONCURRENT_REQUESTS = 8;
 
 interface CacheEntry {
   key: string;
@@ -99,7 +99,7 @@ interface CacheEntry {
 export default function FrameSequence({ progress, onReady, activeChapterRef }: FrameSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState('Buffering opening scene…');
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -131,10 +131,16 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
     const inFlight = new Set<string>();
     const failedSet = new Set<string>();
 
-    // Check viewport width dynamically for responsive delivery variant (compact 540p vs standard 1080p)
+    // Determine if scene has a compact 540p variant
+    const hasCompactVariant = (sceneId: string): boolean => {
+      const sceneData = (scenesManifest.scenes as Record<string, { dimensions?: { compact?: unknown } }>)[sceneId];
+      return Boolean(sceneData?.dimensions?.compact);
+    };
+
+    // Check viewport width dynamically for responsive delivery variant
     const getFrameUrl = (sceneId: string, frameNum: number): string => {
       const compact = typeof window !== 'undefined' && window.innerWidth < 768;
-      const sub = compact ? 'sm/' : '';
+      const sub = (compact && hasCompactVariant(sceneId)) ? 'sm/' : '';
       return `/frames/${sceneId}/${sub}${String(frameNum).padStart(4, '0')}.webp`;
     };
 
@@ -189,6 +195,9 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         resized = true;
+        if (mostRecentValidImage) {
+          ctx.drawImage(mostRecentValidImage, 0, 0, bufferW, bufferH);
+        }
       }
 
       lastRenderW = renderW;
@@ -247,13 +256,14 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       }
     };
 
-    // Evict distant decoded images to stay strictly within memory bounds
+    // Evict distant decoded images safely without network abort thrashing
     const evictDistantFrames = (targetSceneIdx: number, targetFrame: number) => {
       if (cache.size <= MAX_LOADED_CACHE) return;
 
       const entriesWithDistance: { key: string; distance: number; entry: CacheEntry }[] = [];
 
       for (const [key, entry] of cache.entries()) {
+        if (inFlight.has(key)) continue; // Never evict in-flight requests
         const scIdx = SCENE_TIMELINE.findIndex(s => s.id === entry.sceneId);
         const sceneDistance = Math.abs(scIdx - targetSceneIdx);
         const frameDistance = Math.abs(entry.frameNum - targetFrame);
@@ -267,13 +277,13 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
 
       while (cache.size > MAX_LOADED_CACHE && entriesWithDistance.length > 0) {
         const item = entriesWithDistance.shift();
-        if (item && item.key !== lastDrawnKey) {
+        if (item && item.key !== lastDrawnKey && item.distance > 40) {
+          item.entry.img.onload = null;
+          item.entry.img.onerror = null;
           if (item.entry.bitmap) {
             try { item.entry.bitmap.close(); } catch {}
           }
-          item.entry.img.src = '';
           cache.delete(item.key);
-          inFlight.delete(item.key);
         }
       }
     };

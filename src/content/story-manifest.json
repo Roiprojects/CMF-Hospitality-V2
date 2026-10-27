@@ -8,7 +8,18 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 12516466
+    "totalBytes": 12577398
+  },
+  "pour": {
+    "folder": "pour",
+    "urlPrefix": "/frames/pour/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 6655378
   },
   "02_cocktail_falling": {
     "folder": "02_cocktail_falling",
@@ -19,7 +30,18 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 12988548
+    "totalBytes": 13053864
+  },
+  "assembly": {
+    "folder": "assembly",
+    "urlPrefix": "/frames/assembly/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 9262166
   },
   "03_lemon_garnish": {
     "folder": "03_lemon_garnish",
@@ -30,7 +52,7 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 11737940
+    "totalBytes": 11796926
   },
   "04_enter_cocktail": {
     "folder": "04_enter_cocktail",
@@ -41,7 +63,18 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 12935388
+    "totalBytes": 13003284
+  },
+  "inside": {
+    "folder": "inside",
+    "urlPrefix": "/frames/inside/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 7843248
   },
   "05_amber_journey": {
     "folder": "05_amber_journey",
@@ -52,7 +85,29 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 21936380
+    "totalBytes": 22043030
+  },
+  "inside-alternate": {
+    "folder": "inside-alternate",
+    "urlPrefix": "/frames/inside-alternate/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 7739712
+  },
+  "occasions": {
+    "folder": "occasions",
+    "urlPrefix": "/frames/occasions/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 9631636
   },
   "06_wedding": {
     "folder": "06_wedding",
@@ -63,7 +118,7 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 22094114
+    "totalBytes": 22202932
   },
   "07_rooftop_party": {
     "folder": "07_rooftop_party",
@@ -74,7 +129,7 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 19899066
+    "totalBytes": 20002568
   },
   "08_music_festival": {
     "folder": "08_music_festival",
@@ -85,6 +140,6 @@
     "width": 1920,
     "height": 1080,
     "missingFrames": [],
-    "totalBytes": 23749498
+    "totalBytes": 23867798
   }
 }

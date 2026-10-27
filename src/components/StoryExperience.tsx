@@ -342,7 +342,7 @@ export default function StoryExperience() {
         {motionEnabled && (
           <div className="story-status" aria-live="polite" role="status">
             <span className="story-current-chapter">
-              {scenes[activeChapter].num} / 0{scenes.length} · {scenes[activeChapter].sceneName}
+              {scenes[activeChapter]?.num || '01'} / {String(scenes.length).padStart(2, '0')} · {scenes[activeChapter]?.sceneName}
             </span>
             <span className="story-scroll-hint">
               SCROLL TO ADVANCE ↓
@@ -356,7 +356,7 @@ export default function StoryExperience() {
         {/* Subtitle / Spec Note */}
         <span className="scene-caption" aria-hidden="true">
           {framesReady
-            ? '1080P MASTER · 24 FPS · 1,920 LOSSLESS FRAMES'
+            ? `1080P MASTER · 24 FPS · 3,120 LOSSLESS FRAMES`
             : 'BUFFERING CINEMATIC STORY'}
         </span>
       </div>

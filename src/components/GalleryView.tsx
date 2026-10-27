@@ -103,6 +103,46 @@ export const GALLERY_MEDIA: GalleryItem[] = [
     alt: 'Macro photograph inside sparkling amber cocktail liquid showing rising micro-bubbles',
     desc: 'Macro examination of carbonation retention, spirit density, and temperature balance inside the glass.',
     span: 'span-12'
+  },
+  {
+    id: 'craft-crystal-pour',
+    title: 'The Golden Crystal Stream',
+    category: 'Cocktail Craft',
+    venue: 'Studio Tasting Bar',
+    image: '/frames/pour/poster.webp',
+    alt: 'Golden spirit pouring in a smooth continuous stream into a vintage crystal coupe glass',
+    desc: 'Pure spirits poured over clear ice, captured mid-flow at studio resolution.',
+    span: 'span-6'
+  },
+  {
+    id: 'craft-assembly',
+    title: 'Botanical Harmony & Splash',
+    category: 'Cocktail Craft',
+    venue: 'Cocktail Lab Bengaluru',
+    image: '/frames/assembly/poster.webp',
+    alt: 'Cocktail glass with citrus twist and fresh lemon slice captured mid-splash',
+    desc: 'Hand-peeled lemon curl meeting artisanal spirit infusion with dynamic citrus oils.',
+    span: 'span-6'
+  },
+  {
+    id: 'craft-soiree-occasions',
+    title: 'Salon Evening Soirée',
+    category: 'House Parties',
+    venue: 'Private Residence Salon',
+    image: '/frames/occasions/poster.webp',
+    alt: 'Coupe cocktail with lemon peel garnish on sleek dark bar counter with evening guests in background',
+    desc: 'Intimate private dinner party bar service tailored to refined personal tastes.',
+    span: 'span-7'
+  },
+  {
+    id: 'craft-inside-macro',
+    title: 'Effervescence & Flavour Geometry',
+    category: 'Cocktail Craft',
+    venue: 'Cocktail Lab Research',
+    image: '/frames/inside/poster.webp',
+    alt: 'Macro view of rising bubbles inside cold cocktail liquid',
+    desc: 'Calibrated carbonation kinetics, bubble surface tension and botanical emulsion.',
+    span: 'span-5'
   }
 ];
 

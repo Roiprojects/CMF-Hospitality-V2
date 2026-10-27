@@ -646,7 +646,7 @@ p {
 }
 
 .story-enabled {
-  height: 1400svh;
+  height: 1800svh;
 }
 
 .story-stage {
@@ -1168,62 +1168,66 @@ p {
 }
 
 /* ==========================================================================
-   Mobile Story Layout: Inset Landscape Visual (Preserves Complete Glassware)
+   Mobile & Tablet Story Experience — Full-Bleed Cinematic Immersion
    ========================================================================== */
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .story-enabled {
-    height: 800svh;
+    height: 1800svh;
   }
 
   .story-column-backdrop {
     display: none !important;
   }
 
-  /* Inset Landscape visual container to preserve 100% of the glass and stream across ALL scenes */
+  /* Full bleed cinematic frame sequence player */
   .story-stage .frame-sequence,
   .fit-split-screen .frame-sequence,
   .fit-fullscreen-immersive .frame-sequence {
     position: absolute;
-    top: 50%;
-    left: 14px;
-    right: 14px;
-    width: auto;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    max-height: 38svh;
-    transform: translateY(-50%);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(179, 138, 69, 0.35);
-    z-index: 2;
+    inset: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .story-stage .frame-sequence canvas,
   .fit-split-screen .frame-sequence canvas,
   .fit-fullscreen-immersive .frame-sequence canvas {
-    display: block;
+    display: block !important;
     width: 100% !important;
     height: 100% !important;
-    object-fit: contain !important;
+    object-fit: cover !important;
+    object-position: center 45% !important;
   }
 
-  /* Top 8-Segment Story Bars */
+  /* Top 13-Segment Story Progress Bars */
   .story-mobile-segments {
     display: flex;
     position: absolute;
-    top: max(12px, env(safe-area-inset-top));
+    top: max(14px, env(safe-area-inset-top));
     left: 14px;
     right: 14px;
-    z-index: 15;
-    gap: 6px;
+    z-index: 20;
+    gap: 4px;
     pointer-events: none;
   }
 
   .story-segment-bar {
     flex: 1;
     height: 3px;
-    background-color: rgba(121, 90, 45, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-pill);
     overflow: hidden;
   }
@@ -1233,85 +1237,130 @@ p {
     width: 0%;
     background-color: var(--gold);
     border-radius: var(--radius-pill);
-    box-shadow: 0 0 6px rgba(179, 138, 69, 0.7);
+    box-shadow: 0 0 8px rgba(179, 138, 69, 0.9);
   }
 
   .story-segment-bar.is-completed .story-segment-fill,
   .story-segment-bar.is-current .story-segment-fill {
     width: 100%;
-    box-shadow: 0 0 8px var(--gold);
+    box-shadow: 0 0 10px var(--gold);
   }
 
-  /* Structured Panels on Mobile: Heading on top, visual inset in middle, supporting footer at bottom */
+  /* Luxurious Mobile Glassmorphic Story Card at Viewport Bottom */
+  .story-panels {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+  }
+
   .story-panel {
-    padding: max(34px, calc(env(safe-area-inset-top) + 20px)) 16px max(18px, env(safe-area-inset-bottom)) 16px !important;
-    justify-content: space-between !important;
-    align-items: stretch !important;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: max(20px, calc(env(safe-area-inset-top) + 12px)) 16px max(76px, calc(env(safe-area-inset-bottom) + 68px)) 16px !important;
     max-width: 100% !important;
+    pointer-events: none;
   }
 
   .story-panel-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
     width: 100%;
-    max-width: 100%;
-    background: none;
-    border: none;
-    padding: 0;
-    box-shadow: none;
+    max-width: 580px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, rgba(14, 18, 22, 0.78) 0%, rgba(2, 8, 9, 0.95) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(179, 138, 69, 0.4);
+    border-radius: 18px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);
+    pointer-events: auto;
   }
 
   .story-panel-header {
-    background-color: rgba(255, 253, 248, 0.94);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid var(--line-gold);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    margin-bottom: auto;
-    pointer-events: auto;
-    box-shadow: var(--shadow-sm);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
   }
 
   .story-panel-header .eyebrow {
-    font-size: 10px;
-    margin-bottom: 3px;
+    color: #E2BC7A !important;
+    font-size: 10.5px !important;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
   }
 
   .story-panel-header .story-headline {
-    font-size: clamp(18px, 5.2vw, 24px) !important;
-    line-height: 1.18 !important;
-    margin: 4px 0 0 !important;
-    color: var(--text-primary);
+    color: #FFFDF8 !important;
+    font-size: clamp(22px, 5.2vw, 30px) !important;
+    line-height: 1.14 !important;
+    font-weight: 400;
+    font-family: Georgia, 'Playfair Display', serif;
+    margin: 4px 0 8px !important;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
   }
 
   .story-panel-footer {
-    background-color: rgba(255, 253, 248, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--line-gold);
-    border-radius: var(--radius-md);
-    padding: 14px 16px;
-    margin-top: auto;
-    pointer-events: auto;
-    box-shadow: var(--shadow-sm);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
   }
 
   .story-panel-footer .story-caption {
+    color: rgba(245, 239, 228, 0.9) !important;
     font-size: 13px !important;
-    line-height: 1.5 !important;
+    line-height: 1.48 !important;
     margin-bottom: 12px !important;
-    color: var(--text-secondary) !important;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .story-cta-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
   .story-cta-btn {
-    width: 100%;
-    text-align: center;
-    padding: 11px 16px;
-    font-size: 11px;
-    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #C29B38 0%, #8C6A1E 100%) !important;
+    color: #FFFDF8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em;
+    padding: 9px 18px !important;
+    border-radius: var(--radius-pill) !important;
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(194, 155, 56, 0.4);
+    display: inline-block;
+  }
+
+  .story-cta-link {
+    color: #E2BC7A !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px !important;
+  }
+
+  .story-skip-inline {
+    color: rgba(245, 239, 228, 0.7) !important;
+    font-size: 11px !important;
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 
   .chapter-rail,
