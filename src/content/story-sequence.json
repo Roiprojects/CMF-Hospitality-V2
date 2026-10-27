@@ -1,21 +1,16 @@
 {
   "clips": [
     "01_martini_reveal",
-    "pour",
     "02_cocktail_falling",
-    "assembly",
     "03_lemon_garnish",
     "04_enter_cocktail",
-    "inside",
     "05_amber_journey",
-    "inside-alternate",
-    "occasions",
     "06_wedding",
     "07_rooftop_party",
     "08_music_festival"
   ],
   "framesPerClip": 240,
-  "totalFrames": 3120,
+  "totalFrames": 1920,
   "nativeWidth": 1920,
   "nativeHeight": 1080
 }

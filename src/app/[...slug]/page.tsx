@@ -251,7 +251,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/frames/occasions/poster.webp"
+                src="/frames/06_wedding/poster.webp"
                 alt="VIROSH Destination Wedding Bar Setup — Udaipur, Rajasthan"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -289,7 +289,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/frames/pour/poster.webp"
+                src="/images/wedding-reception-bar.jpg"
                 alt="International Destination Wedding Bar Hospitality — Hilton Al Husain, Oman"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -308,7 +308,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/frames/assembly/poster.webp"
+                src="/images/cocktail-concept.png"
                 alt="Luxury Hospitality Cocktail Consultancy — ITC Moments"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}

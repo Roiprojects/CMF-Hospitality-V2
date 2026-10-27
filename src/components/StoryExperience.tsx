@@ -360,7 +360,7 @@ export default function StoryExperience() {
         {/* Subtitle / Spec Note */}
         <span className="scene-caption" aria-hidden="true">
           {framesReady
-            ? `1080P MASTER · 24 FPS · 3,120 LOSSLESS FRAMES`
+            ? `1080P MASTER · 24 FPS · 1,920 LOSSLESS FRAMES`
             : 'BUFFERING CINEMATIC STORY'}
         </span>
       </div>
