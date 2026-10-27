@@ -68,7 +68,43 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </span>
         </div>
 
+        {/* Desktop Direct Luxury Nav Links */}
+        <nav className="desktop-nav-links" aria-label="Main Navigation">
+          <Link
+            href="/services"
+            className={`desktop-nav-link ${path.startsWith('/services') ? 'active' : ''}`}
+          >
+            Experiences
+          </Link>
+          <Link href="/#craft" className="desktop-nav-link">
+            The Craft
+          </Link>
+          <Link
+            href="/about"
+            className={`desktop-nav-link ${path === '/about' ? 'active' : ''}`}
+          >
+            About
+          </Link>
+          <Link
+            href="/gallery"
+            className={`desktop-nav-link ${path === '/gallery' ? 'active' : ''}`}
+          >
+            Gallery
+          </Link>
+          <Link
+            href="/blogs"
+            className={`desktop-nav-link ${path.startsWith('/blogs') ? 'active' : ''}`}
+          >
+            Journal
+          </Link>
+        </nav>
+
         <div className="header-actions">
+          {/* Desktop Luxury Gold CTA */}
+          <Link href="/contact" className="header-cta-btn button small">
+            <span>Plan An Event ↗</span>
+          </Link>
+
           {/* Mobile Quick WhatsApp Link */}
           <a
             href="https://wa.me/919945379333?text=Hi%20Bar%20Chef%20Bengaluru,%20I'd%20like%20to%20plan%20an%20event!"
@@ -94,7 +130,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <span className={`bar top ${open ? 'active' : ''}`} />
               <span className={`bar bottom ${open ? 'active' : ''}`} />
             </span>
-            <span className="menu-toggle-label">{open ? 'Close' : 'Menu'}</span>
+            <span className="menu-toggle-label">{open ? 'Close' : 'Directory'}</span>
           </button>
         </div>
 
