@@ -116,9 +116,6 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
     let rafId = 0;
     let lastTime = performance.now();
 
-    // Check viewport width for responsive delivery variant (compact 540p vs standard 1080p)
-    const isCompact = typeof window !== 'undefined' && window.innerWidth < 768;
-
     // Animation state in mutable variables (zero React re-renders during 60fps scrub)
     let smoothedProgress = Math.min(1, Math.max(0, progress.current || 0));
     let lastDrawnKey = '';
@@ -134,8 +131,10 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
     const inFlight = new Set<string>();
     const failedSet = new Set<string>();
 
+    // Check viewport width dynamically for responsive delivery variant (compact 540p vs standard 1080p)
     const getFrameUrl = (sceneId: string, frameNum: number): string => {
-      const sub = isCompact ? 'sm/' : '';
+      const compact = typeof window !== 'undefined' && window.innerWidth < 768;
+      const sub = compact ? 'sm/' : '';
       return `/frames/${sceneId}/${sub}${String(frameNum).padStart(4, '0')}.webp`;
     };
 
@@ -165,8 +164,8 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
     // Resize canvas with correct 16:9 aspect ratio and sensible device-pixel-ratio cap
     const updateCanvasDimensions = () => {
       const rect = container.getBoundingClientRect();
-      const containerW = rect.width || window.innerWidth;
-      const containerH = rect.height || window.innerHeight;
+      const containerW = rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1920);
+      const containerH = rect.height || (typeof window !== 'undefined' ? window.innerHeight : 1080);
 
       // 16:9 contain aspect ratio
       const targetAspect = 16 / 9;
@@ -179,14 +178,16 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       }
 
       // Sensible DPR cap at 2.0 to conserve mobile GPU / canvas memory
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const bufferW = Math.round(renderW * dpr);
-      const bufferH = Math.round(renderH * dpr);
+      const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2);
+      const bufferW = Math.max(320, Math.round(renderW * dpr));
+      const bufferH = Math.max(180, Math.round(renderH * dpr));
 
       let resized = false;
       if (canvas.width !== bufferW || canvas.height !== bufferH) {
         canvas.width = bufferW;
         canvas.height = bufferH;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         resized = true;
       }
 
@@ -223,17 +224,14 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
         t = Math.min(1, Math.max(0, t));
 
         if (trans?.type === 'cream-gold-pulse' || (isStart && SCENE_TIMELINE[scene.order - 2]?.transition?.type === 'cream-gold-pulse')) {
-          // Warm cream/gold luminous transition pulse between macro liquid & wedding scene
           ctx.fillStyle = `rgba(241, 232, 216, ${(t * 0.70).toFixed(3)})`;
           ctx.fillRect(0, 0, cw, ch);
           ctx.fillStyle = `rgba(192, 161, 107, ${(t * 0.35).toFixed(3)})`;
           ctx.fillRect(0, 0, cw, ch);
         } else if (trans?.type === 'fluid-dissolve') {
-          // Warm amber dissolve
           ctx.fillStyle = `rgba(192, 161, 107, ${(t * 0.50).toFixed(3)})`;
           ctx.fillRect(0, 0, cw, ch);
         } else {
-          // Clean editorial cut / dark shutter (prevents ghosted double-glasses)
           ctx.fillStyle = `rgba(2, 8, 9, ${(t * 0.85).toFixed(3)})`;
           ctx.fillRect(0, 0, cw, ch);
         }
@@ -249,7 +247,7 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       }
     };
 
-    // Evict distant decoded images and close ImageBitmaps to never exceed memory bounds
+    // Evict distant decoded images to stay strictly within memory bounds
     const evictDistantFrames = (targetSceneIdx: number, targetFrame: number) => {
       if (cache.size <= MAX_LOADED_CACHE) return;
 
@@ -270,11 +268,9 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       while (cache.size > MAX_LOADED_CACHE && entriesWithDistance.length > 0) {
         const item = entriesWithDistance.shift();
         if (item && item.key !== lastDrawnKey) {
-          // If ImageBitmap exists, close it explicitly
           if (item.entry.bitmap) {
             try { item.entry.bitmap.close(); } catch {}
           }
-          // Release HTMLImageElement memory
           item.entry.img.src = '';
           cache.delete(item.key);
           inFlight.delete(item.key);
@@ -282,7 +278,7 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       }
     };
 
-    // Preload a single frame with priority handling
+    // Preload a single frame with rock-solid onload and fallback handling
     const preloadSpecificFrame = (scene: SceneConfig, frameNum: number, priority = false): void => {
       const key = `${scene.id}_${frameNum}`;
       if (disposed || cache.has(key) || inFlight.has(key) || failedSet.has(key)) return;
@@ -300,39 +296,49 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       };
       cache.set(key, entry);
 
-      img.src = getFrameUrl(scene.id, frameNum);
+      const url = getFrameUrl(scene.id, frameNum);
 
-      img
-        .decode()
-        .then(() => {
-          inFlight.delete(key);
-          if (disposed) return;
+      const onImageLoaded = () => {
+        inFlight.delete(key);
+        if (disposed) return;
 
-          entry.ready = true;
+        entry.ready = true;
 
-          // Attempt createImageBitmap for faster blit if supported
-          if (typeof window !== 'undefined' && 'createImageBitmap' in window) {
-            window.createImageBitmap(img).then(bmp => {
-              if (disposed) {
-                bmp.close();
-                return;
-              }
-              entry.bitmap = bmp;
-            }).catch(() => {});
-          }
+        // If the playhead is actively waiting for this exact frame, draw it immediately!
+        const cur = mapProgressToSceneAndFrame(smoothedProgress);
+        const curKey = `${cur.scene.id}_${cur.frameNum}`;
+        if (key === curKey) {
+          drawImageToCanvas(img, key, cur.scene, cur.frameNum);
+        }
+      };
 
-          // If the playhead is actively waiting for this exact frame, draw it immediately!
-          const cur = mapProgressToSceneAndFrame(smoothedProgress);
-          const curKey = `${cur.scene.id}_${cur.frameNum}`;
-          if (key === curKey && lastDrawnKey !== curKey) {
-            drawImageToCanvas(entry.bitmap || img, key, cur.scene, cur.frameNum);
-          }
-        })
-        .catch(() => {
-          inFlight.delete(key);
-          failedSet.add(key);
-          cache.delete(key);
-        });
+      img.onload = onImageLoaded;
+
+      img.onerror = () => {
+        inFlight.delete(key);
+        // Fallback: If 'sm/' variant fails, try standard full-size frame
+        if (url.includes('/sm/')) {
+          const fallbackUrl = url.replace('/sm/', '/');
+          const fallbackImg = new Image();
+          fallbackImg.onload = () => {
+            entry.img = fallbackImg;
+            entry.ready = true;
+            const cur = mapProgressToSceneAndFrame(smoothedProgress);
+            if (key === `${cur.scene.id}_${cur.frameNum}`) {
+              drawImageToCanvas(fallbackImg, key, cur.scene, cur.frameNum);
+            }
+          };
+          fallbackImg.src = fallbackUrl;
+          return;
+        }
+        failedSet.add(key);
+        cache.delete(key);
+      };
+
+      img.src = url;
+      if (img.complete && img.naturalWidth > 0) {
+        onImageLoaded();
+      }
     };
 
     // Maintain bounded sliding preload window around current position
@@ -392,14 +398,25 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
     const loadInitialPoster = () => {
       const initialScene = SCENE_TIMELINE[0];
       const posterImg = new Image();
-      posterImg.src = initialScene.posterImage;
-      posterImg.onload = () => {
+
+      const onPosterLoaded = () => {
         if (disposed || initialPosterPainted) return;
         updateCanvasDimensions();
         drawImageToCanvas(posterImg, 'initial_poster', initialScene, initialScene.trimRange.start);
       };
 
-      // Preload first opening frames
+      posterImg.onload = onPosterLoaded;
+      posterImg.onerror = () => {
+        // Fallback to first opening frame
+        preloadSpecificFrame(initialScene, initialScene.trimRange.start, true);
+      };
+
+      posterImg.src = initialScene.posterImage;
+      if (posterImg.complete && posterImg.naturalWidth > 0) {
+        onPosterLoaded();
+      }
+
+      // Preload first opening frames immediately
       for (let i = 0; i <= 6; i++) {
         preloadSpecificFrame(initialScene, initialScene.trimRange.start + i, true);
       }
@@ -439,14 +456,13 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
       activeChapterRef.current = sceneIndex;
 
       const targetKey = `${scene.id}_${frameNum}`;
-      const dimensionsChanged = updateCanvasDimensions();
 
-      // Redraw ONLY when displayed frame or canvas size changes
-      if (targetKey !== lastDrawnKey || dimensionsChanged) {
+      // Redraw ONLY when displayed frame changes
+      if (targetKey !== lastDrawnKey) {
         const cachedEntry = cache.get(targetKey);
 
         if (cachedEntry && cachedEntry.ready) {
-          drawImageToCanvas(cachedEntry.bitmap || cachedEntry.img, targetKey, scene, frameNum);
+          drawImageToCanvas(cachedEntry.img, targetKey, scene, frameNum);
         } else {
           // If the exact frame is still decoding, find the closest available loaded frame
           // so the animation never flickers or flashes black
@@ -463,10 +479,10 @@ export default function FrameSequence({ progress, onReady, activeChapterRef }: F
             }
           }
 
-          if (closestEntry && minDistance < 20) {
-            drawImageToCanvas(closestEntry.bitmap || closestEntry.img, `${closestEntry.sceneId}_${closestEntry.frameNum}`, scene, closestEntry.frameNum);
-          } else if (mostRecentValidImage && dimensionsChanged) {
-            drawImageToCanvas(mostRecentValidImage, lastDrawnKey, scene, frameNum);
+          if (closestEntry && minDistance < 25) {
+            drawImageToCanvas(closestEntry.img, `${closestEntry.sceneId}_${closestEntry.frameNum}`, scene, closestEntry.frameNum);
+          } else if (mostRecentValidImage) {
+            ctx.drawImage(mostRecentValidImage, 0, 0, canvas.width, canvas.height);
           }
 
           // Prioritise immediate fetch of the target frame

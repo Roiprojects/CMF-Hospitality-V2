@@ -140,7 +140,13 @@ export default function StoryExperience() {
     stRef.current = st;
     syncPanelsAndProgress(st.progress);
 
+    // Refresh ScrollTrigger to calculate exact dimensions after layout settles
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 150);
+
     return () => {
+      clearTimeout(refreshTimer);
       st.kill();
       stRef.current = null;
       panels.forEach((panel) => {
