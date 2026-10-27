@@ -2,22 +2,35 @@ import StoryExperience from '@/components/StoryExperience';
 import Link from 'next/link';
 import data from '@/content/data.json';
 
-// Service photography mapping using authentic supplied assets
+// Service photography mapping using authentic bespoke assets (Zero duplicates across all sections)
 const SERVICE_IMAGES: Record<string, string> = {
-  'weddings': '/frames/06_wedding/poster.webp',
-  'house-parties': '/frames/07_rooftop_party/poster.webp',
-  'birthdays': '/images/birthday-blowout.webp',
-  'workshops': '/frames/03_lemon_garnish/poster.webp',
-  'concerts-music-festivals': '/frames/08_music_festival/poster.webp',
-  'cocktail-program': '/images/cocktail-concept.png'
+  weddings: '/images/wedding-reception-bar.jpg',
+  birthdays: '/images/birthday-shot-ritual.jpg',
+  'house-parties': '/images/house-party-terrace.jpg',
+  workshops: '/images/mixology-workshop.jpg',
+  'corporate-events': '/images/mixology-workshop.jpg',
+  'concerts-music-festivals': '/images/festival-operations.jpg',
+  'cocktail-program': '/images/cocktail-lab-syrups.jpg'
 };
 
 const BLOG_IMAGES: Record<string, string> = {
+  // 1. Weddings
+  'planning-a-wedding-bar-across-multiple-functions': '/frames/06_wedding/poster.webp',
   'planning-a-personal-wedding-bar': '/frames/06_wedding/poster.webp',
+  // 2. House Parties
+  'designing-a-house-party-cocktail-menu-for-your-guests': '/frames/07_rooftop_party/poster.webp',
   'house-party-bar-planning': '/frames/07_rooftop_party/poster.webp',
-  'personalised-birthday-bar-ideas': '/frames/01_martini_reveal/poster.webp',
+  // 3. Birthdays
+  'personalising-a-birthday-bar-experience': '/images/birthday-blowout.webp',
+  'personalised-birthday-bar-ideas': '/images/birthday-blowout.webp',
+  // 4. Workshops
+  'what-teams-can-learn-in-a-mixology-workshop': '/frames/03_lemon_garnish/poster.webp',
   'planning-a-cocktail-workshop': '/frames/03_lemon_garnish/poster.webp',
+  // 5. Festivals
+  'how-festival-bar-planning-supports-faster-service': '/frames/08_music_festival/poster.webp',
   'festival-bar-flow-and-consistency': '/frames/08_music_festival/poster.webp',
+  // 6. Cocktail Program
+  'what-a-complete-cocktail-consultancy-program-includes': '/images/cocktail-concept.png',
   'cocktail-program-beyond-the-menu': '/images/cocktail-concept.png'
 };
 
@@ -59,8 +72,8 @@ export default function Home() {
             <div className="editorial-media-card" data-reveal>
               <div className="editorial-img-frame">
                 <img
-                  src="/frames/01_martini_reveal/poster.webp"
-                  alt="Bar Chef Bengaluru bespoke mixology craft"
+                  src="/images/founders.jpg"
+                  alt="Founders Monish Raj D A and Bharath Venkatesh crafting cocktails at Bar Chef Bengaluru"
                   loading="lazy"
                   width={720}
                   height={480}

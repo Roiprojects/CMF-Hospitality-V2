@@ -51,7 +51,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <header className="site-header">
         <div className="header-brand-wrap">
           <Link href="/" aria-label="Bar Chef Bengaluru home" className="logo">
-            <img src="/images/logo.jpg" alt="Bar Chef Bengaluru" width="120" height="80" />
+            <img
+              src="/images/logo.jpg"
+              alt="Bar Chef Bengaluru"
+              width="120"
+              height="80"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = '/frames/01_martini_reveal/poster.webp';
+              }}
+            />
           </Link>
           <span className="app-status-badge">
             <span className="status-live-dot" />

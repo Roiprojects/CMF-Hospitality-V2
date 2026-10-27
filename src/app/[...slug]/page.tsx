@@ -4,26 +4,34 @@ import data from '@/content/data.json';
 import Inquiry from '@/components/Inquiry';
 import GalleryView from '@/components/GalleryView';
 
+// Service photography mapping using authentic bespoke assets (Zero duplicates across all sections)
 const SERVICE_IMAGES: Record<string, string> = {
-  'weddings': '/frames/06_wedding/poster.webp',
-  'house-parties': '/frames/07_rooftop_party/poster.webp',
-  'birthdays': '/images/birthday-blowout.webp',
-  'workshops': '/frames/03_lemon_garnish/poster.webp',
-  'concerts-music-festivals': '/frames/08_music_festival/poster.webp',
-  'cocktail-program': '/images/cocktail-concept.png'
+  weddings: '/images/wedding-reception-bar.jpg',
+  birthdays: '/images/birthday-shot-ritual.jpg',
+  'house-parties': '/images/house-party-terrace.jpg',
+  workshops: '/images/mixology-workshop.jpg',
+  'corporate-events': '/images/mixology-workshop.jpg',
+  'concerts-music-festivals': '/images/festival-operations.jpg',
+  'cocktail-program': '/images/cocktail-lab-syrups.jpg'
 };
 
 const BLOG_IMAGES: Record<string, string> = {
+  // 1. Weddings
   'planning-a-wedding-bar-across-multiple-functions': '/frames/06_wedding/poster.webp',
   'planning-a-personal-wedding-bar': '/frames/06_wedding/poster.webp',
+  // 2. House Parties
   'designing-a-house-party-cocktail-menu-for-your-guests': '/frames/07_rooftop_party/poster.webp',
   'house-party-bar-planning': '/frames/07_rooftop_party/poster.webp',
+  // 3. Birthdays
   'personalising-a-birthday-bar-experience': '/images/birthday-blowout.webp',
   'personalised-birthday-bar-ideas': '/images/birthday-blowout.webp',
+  // 4. Workshops
   'what-teams-can-learn-in-a-mixology-workshop': '/frames/03_lemon_garnish/poster.webp',
   'planning-a-cocktail-workshop': '/frames/03_lemon_garnish/poster.webp',
+  // 5. Festivals
   'how-festival-bar-planning-supports-faster-service': '/frames/08_music_festival/poster.webp',
   'festival-bar-flow-and-consistency': '/frames/08_music_festival/poster.webp',
+  // 6. Cocktail Program
   'what-a-complete-cocktail-consultancy-program-includes': '/images/cocktail-concept.png',
   'cocktail-program-beyond-the-menu': '/images/cocktail-concept.png'
 };
@@ -182,8 +190,8 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/images/cocktail-concept.png"
-            alt="BarChef Bengaluru Cocktail Craft & Tasting Laboratory"
+            src="/images/founders.jpg"
+            alt="Founders Monish Raj D A & Bharath Venkatesh — Bar Chef Bengaluru"
             loading="lazy"
           />
         </div>
@@ -243,7 +251,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/frames/06_wedding/poster.webp"
+                src="/frames/occasions/poster.webp"
                 alt="VIROSH Destination Wedding Bar Setup — Udaipur, Rajasthan"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -281,7 +289,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/frames/07_rooftop_party/poster.webp"
+                src="/frames/pour/poster.webp"
                 alt="International Destination Wedding Bar Hospitality — Hilton Al Husain, Oman"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -300,7 +308,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
           <div style={{ backgroundColor: 'var(--surface-white)', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
             <div style={{ height: '180px', overflow: 'hidden' }}>
               <img
-                src="/images/cocktail-concept.png"
+                src="/frames/assembly/poster.webp"
                 alt="Luxury Hospitality Cocktail Consultancy — ITC Moments"
                 loading="lazy"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -339,7 +347,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/frames/06_wedding/poster.webp"
+            src="/images/wedding-reception-bar.jpg"
             alt="One Wedding. Many Different Moods. — BarChef Bengaluru"
             loading="lazy"
           />
@@ -426,7 +434,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/images/birthday-blowout.webp"
+            src="/images/birthday-shot-ritual.jpg"
             alt="Not Just a Birthday. A Blowout. — BarChef Bengaluru"
             loading="lazy"
           />
@@ -528,7 +536,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/frames/07_rooftop_party/poster.webp"
+            src="/images/house-party-terrace.jpg"
             alt="Your home. Your people. Your kind of evening. — BarChef Bengaluru"
             loading="lazy"
           />
@@ -570,7 +578,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/frames/03_lemon_garnish/poster.webp"
+            src="/images/mixology-workshop.jpg"
             alt="Mixology Workshops & Masterclasses — BarChef Bengaluru"
             loading="lazy"
           />
@@ -753,7 +761,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/frames/08_music_festival/poster.webp"
+            src="/images/festival-operations.jpg"
             alt="One Festival. Thousands of Moods. — BarChef Bengaluru"
             loading="lazy"
           />
@@ -854,7 +862,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string[
       <div className="service-detail-container">
         <div className="service-hero-banner">
           <img
-            src="/images/cocktail-concept.png"
+            src="/images/cocktail-lab-syrups.jpg"
             alt="Cocktail Program & Beverage Consultancy — BarChef Bengaluru"
             loading="lazy"
           />

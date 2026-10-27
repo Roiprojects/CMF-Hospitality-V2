@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import data from '@/content/data.json';
 
 interface InquiryState {
@@ -19,43 +19,196 @@ export default function Inquiry() {
   const [guests, setGuests] = useState('');
   const [message, setMessage] = useState('');
 
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const [state, setState] = useState<InquiryState>({
     status: 'idle',
     message: ''
   });
+
+  // Calculate today's date in YYYY-MM-DD for date input min constraint
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
 
   useEffect(() => {
     const s = new URLSearchParams(window.location.search).get('service');
     if (s) setService(s);
   }, []);
 
+  // Validation function per field
+  const validateField = (field: string, value: string): string => {
+    switch (field) {
+      case 'name': {
+        const trimmed = value.trim();
+        if (!trimmed) return 'Please provide your full name.';
+        if (trimmed.length < 2) return 'Name must be at least 2 characters.';
+        if (trimmed.length > 100) return 'Name cannot exceed 100 characters.';
+        if (!/^[a-zA-Z\s.'-]+$/.test(trimmed)) {
+          return 'Name may only contain letters, spaces, hyphens, and apostrophes.';
+        }
+        return '';
+      }
+      case 'email': {
+        const trimmed = value.trim();
+        if (!trimmed) return 'Please provide your email address.';
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(trimmed)) {
+          return 'Please enter a valid email address (e.g. name@domain.com).';
+        }
+        return '';
+      }
+      case 'service': {
+        if (!value.trim()) return 'Please select an experience or celebration category.';
+        return '';
+      }
+      case 'phone': {
+        const trimmed = value.trim();
+        if (trimmed) {
+          const phoneRegex = /^(\+?[0-9\s-]{10,18})$/;
+          if (!phoneRegex.test(trimmed)) {
+            return 'Please provide a valid 10–15 digit phone or WhatsApp number.';
+          }
+        }
+        return '';
+      }
+      case 'date': {
+        if (value) {
+          const selected = new Date(value);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (selected < today) {
+            return 'Event date cannot be in the past.';
+          }
+        }
+        return '';
+      }
+      case 'guests': {
+        if (value) {
+          const num = Number(value);
+          if (isNaN(num) || !Number.isInteger(num) || num < 1) {
+            return 'Please enter a positive whole number for guests.';
+          }
+          if (num > 50000) {
+            return 'Guest count exceeds standard capacity (max 50,000).';
+          }
+        }
+        return '';
+      }
+      case 'message': {
+        if (value.length > 2000) {
+          return 'Notes cannot exceed 2,000 characters.';
+        }
+        return '';
+      }
+      default:
+        return '';
+    }
+  };
+
+  const handleBlur = (field: string, val: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const err = validateField(field, val);
+    setErrors(prev => {
+      const next = { ...prev };
+      if (err) next[field] = err;
+      else delete next[field];
+      return next;
+    });
+  };
+
+  const handleChange = (field: string, val: string, setter: (v: string) => void) => {
+    setter(val);
+    if (touched[field]) {
+      const err = validateField(field, val);
+      setErrors(prev => {
+        const next = { ...prev };
+        if (err) next[field] = err;
+        else delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validateAll = (): Record<string, string> => {
+    const newErrors: Record<string, string> = {};
+    const checks: [string, string][] = [
+      ['name', name],
+      ['email', email],
+      ['service', service],
+      ['phone', phone],
+      ['date', date],
+      ['guests', guests],
+      ['message', message]
+    ];
+
+    checks.forEach(([f, v]) => {
+      const err = validateField(f, v);
+      if (err) newErrors[f] = err;
+    });
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      email: true,
+      service: true,
+      phone: true,
+      date: true,
+      venue: true,
+      guests: true,
+      message: true
+    });
+
+    const validationErrors = validateAll();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setState({
+        status: 'error',
+        message: 'Please resolve the highlighted fields before submitting.'
+      });
+      // Focus first erroneous input element
+      const firstKey = Object.keys(validationErrors)[0];
+      const targetEl = document.querySelector(`[name="${firstKey}"]`) as HTMLElement;
+      targetEl?.focus();
+      return;
+    }
+
     setState({ status: 'submitting', message: 'Validating and submitting your inquiry...' });
 
     const payload = {
-      name,
-      email,
-      phone,
-      service,
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      service: service.trim(),
       date,
-      venue,
-      guests,
-      message
+      venue: venue.trim(),
+      guests: guests ? Number(guests) : undefined,
+      message: message.trim()
     };
 
     const formattedBrief = [
       '==========================================',
       'BAR CHEF BENGALURU — EVENT BRIEF',
       '==========================================',
-      `Guest Name:    ${name}`,
-      `Email:         ${email}`,
-      `Phone:         ${phone || 'Not specified'}`,
+      `Guest Name:    ${name.trim()}`,
+      `Email:         ${email.trim()}`,
+      `Phone:         ${phone.trim() || 'Not specified'}`,
       `Experience:    ${data.services.find(s => s.slug === service)?.title || service}`,
       `Event Date:    ${date || 'Flexible'}`,
-      `Venue/City:    ${venue || 'Bengaluru'}`,
+      `Venue/City:    ${venue.trim() || 'Bengaluru'}`,
       `Guest Count:   ${guests || 'To be confirmed'}`,
-      `Ideas/Notes:   ${message || 'No additional notes'}`,
+      `Ideas/Notes:   ${message.trim() || 'No additional notes'}`,
       `Submitted:     ${new Date().toLocaleString()}`,
       '=========================================='
     ].join('\n');
@@ -73,6 +226,12 @@ export default function Inquiry() {
         setState({
           status: 'success',
           message: result.message || 'Your inquiry has been successfully received!'
+        });
+      } else if (result.fieldErrors) {
+        setErrors(result.fieldErrors);
+        setState({
+          status: 'error',
+          message: result.error || 'Server validation failed. Please check the marked fields.'
         });
       } else if (result.setupRequired) {
         setState({
@@ -189,47 +348,105 @@ export default function Inquiry() {
 
       <form className="inquiry-form-card" onSubmit={handleSubmit} noValidate>
         <div className="form-grid">
-          <label>
-            Your name *
+          {/* 1. Name */}
+          <div>
+            <label htmlFor="inquiry-name">
+              Your name *
+            </label>
             <input
+              id="inquiry-name"
               name="name"
               autoComplete="name"
               required
+              aria-required="true"
+              aria-invalid={Boolean(touched.name && errors.name)}
+              aria-describedby={touched.name && errors.name ? 'name-error' : undefined}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => handleChange('name', e.target.value, setName)}
+              onBlur={(e) => handleBlur('name', e.target.value)}
               placeholder="e.g. Vikram Sharma"
             />
-          </label>
-          <label>
-            Email address *
+            {touched.name && errors.name && (
+              <span id="name-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.name}
+              </span>
+            )}
+          </div>
+
+          {/* 2. Email */}
+          <div>
+            <label htmlFor="inquiry-email">
+              Email address *
+            </label>
             <input
+              id="inquiry-email"
               name="email"
               type="email"
               autoComplete="email"
               required
+              aria-required="true"
+              aria-invalid={Boolean(touched.email && errors.email)}
+              aria-describedby={touched.email && errors.email ? 'email-error' : undefined}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleChange('email', e.target.value, setEmail)}
+              onBlur={(e) => handleBlur('email', e.target.value)}
               placeholder="e.g. vikram@example.com"
             />
-          </label>
-          <label>
-            Phone number (WhatsApp)
+            {touched.email && errors.email && (
+              <span id="email-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.email}
+              </span>
+            )}
+          </div>
+
+          {/* 3. Phone */}
+          <div>
+            <label htmlFor="inquiry-phone">
+              Phone number (WhatsApp)
+            </label>
             <input
+              id="inquiry-phone"
               name="phone"
               type="tel"
               autoComplete="tel"
+              aria-invalid={Boolean(touched.phone && errors.phone)}
+              aria-describedby={touched.phone && errors.phone ? 'phone-error' : undefined}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => handleChange('phone', e.target.value, setPhone)}
+              onBlur={(e) => handleBlur('phone', e.target.value)}
               placeholder="+91 98765 43210"
             />
-          </label>
-          <label>
-            Experience *
+            {touched.phone && errors.phone && (
+              <span id="phone-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.phone}
+              </span>
+            )}
+          </div>
+
+          {/* 4. Experience / Service */}
+          <div>
+            <label htmlFor="inquiry-service">
+              Experience *
+            </label>
             <select
+              id="inquiry-service"
               name="service"
               required
+              aria-required="true"
+              aria-invalid={Boolean(touched.service && errors.service)}
+              aria-describedby={touched.service && errors.service ? 'service-error' : undefined}
               value={service}
-              onChange={(e) => setService(e.target.value)}
+              onChange={(e) => handleChange('service', e.target.value, setService)}
+              onBlur={(e) => handleBlur('service', e.target.value)}
             >
               <option value="">Select an experience</option>
               {data.services.map((s) => (
@@ -238,49 +455,115 @@ export default function Inquiry() {
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            Event date
+            {touched.service && errors.service && (
+              <span id="service-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.service}
+              </span>
+            )}
+          </div>
+
+          {/* 5. Date */}
+          <div>
+            <label htmlFor="inquiry-date">
+              Event date
+            </label>
             <input
+              id="inquiry-date"
               name="date"
               type="date"
+              min={todayStr}
+              aria-invalid={Boolean(touched.date && errors.date)}
+              aria-describedby={touched.date && errors.date ? 'date-error' : undefined}
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => handleChange('date', e.target.value, setDate)}
+              onBlur={(e) => handleBlur('date', e.target.value)}
             />
-          </label>
-          <label>
-            Estimated guest count
+            {touched.date && errors.date && (
+              <span id="date-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.date}
+              </span>
+            )}
+          </div>
+
+          {/* 6. Guests */}
+          <div>
+            <label htmlFor="inquiry-guests">
+              Estimated guest count
+            </label>
             <input
+              id="inquiry-guests"
               name="guests"
               type="number"
               min="1"
+              max="50000"
+              aria-invalid={Boolean(touched.guests && errors.guests)}
+              aria-describedby={touched.guests && errors.guests ? 'guests-error' : undefined}
               value={guests}
-              onChange={(e) => setGuests(e.target.value)}
+              onChange={(e) => handleChange('guests', e.target.value, setGuests)}
+              onBlur={(e) => handleBlur('guests', e.target.value)}
               placeholder="e.g. 75"
             />
-          </label>
+            {touched.guests && errors.guests && (
+              <span id="guests-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.guests}
+              </span>
+            )}
+          </div>
         </div>
 
-        <label style={{ display: 'block', marginTop: '14px' }}>
-          City / Venue
+        {/* 7. City / Venue */}
+        <div style={{ marginTop: '16px' }}>
+          <label htmlFor="inquiry-venue">
+            City / Venue
+          </label>
           <input
+            id="inquiry-venue"
             name="venue"
+            maxLength={200}
             value={venue}
-            onChange={(e) => setVenue(e.target.value)}
+            onChange={(e) => handleChange('venue', e.target.value, setVenue)}
             placeholder="e.g. Indiranagar, Bengaluru or Udaipur"
           />
-        </label>
+        </div>
 
-        <label style={{ display: 'block', marginTop: '14px' }}>
-          Tell us about your celebration or requirements
+        {/* 8. Message / Notes */}
+        <div style={{ marginTop: '16px' }}>
+          <label htmlFor="inquiry-message">
+            Tell us about your celebration or requirements
+          </label>
           <textarea
+            id="inquiry-message"
             name="message"
             rows={4}
+            maxLength={2000}
+            aria-invalid={Boolean(touched.message && errors.message)}
+            aria-describedby={touched.message && errors.message ? 'message-error' : undefined}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => handleChange('message', e.target.value, setMessage)}
+            onBlur={(e) => handleBlur('message', e.target.value)}
             placeholder="Favourite spirits, signature flavours, event timeline, theme or operational expectations..."
           />
-        </label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {touched.message && errors.message ? (
+              <span id="message-error" className="form-field-error" role="alert">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 4.5zm0 8a.875.875 0 110-1.75.875.875 0 010 1.75z" />
+                </svg>
+                {errors.message}
+              </span>
+            ) : <span />}
+            <span className="form-char-count">{message.length}/2000</span>
+          </div>
+        </div>
 
         <button
           className="button full-width"

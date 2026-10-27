@@ -1939,6 +1939,57 @@ input:focus, select:focus, textarea:focus {
   outline: none;
 }
 
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #D32F2F !important;
+  background-color: #FFFDFD;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+}
+
+input[aria-invalid="true"]:focus,
+select[aria-invalid="true"]:focus,
+textarea[aria-invalid="true"]:focus {
+  border-color: #B71C1C !important;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.22);
+}
+
+.form-field-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #C62828;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  margin-top: 6px;
+  line-height: 1.4;
+  animation: fadeInDown 0.18s ease-out;
+}
+
+.form-char-count {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 textarea {
   resize: vertical;
 }

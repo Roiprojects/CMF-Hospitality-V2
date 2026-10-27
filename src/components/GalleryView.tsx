@@ -143,6 +143,76 @@ export const GALLERY_MEDIA: GalleryItem[] = [
     alt: 'Macro view of rising bubbles inside cold cocktail liquid',
     desc: 'Calibrated carbonation kinetics, bubble surface tension and botanical emulsion.',
     span: 'span-5'
+  },
+  {
+    id: 'wedding-udaipur-grand',
+    title: 'Lakeside Palace Reception Bar',
+    category: 'Weddings',
+    venue: 'Lake Pichola · Udaipur',
+    image: '/images/wedding-reception-bar.jpg',
+    alt: 'White marble wedding cocktail bar adorned with white orchids and fairy lights overlooking Udaipur palace',
+    desc: 'Bespoke destination wedding bar overlooking Lake Pichola with tailored welcome spritzes and rose gin serves.',
+    span: 'span-7'
+  },
+  {
+    id: 'house-party-bengaluru-terrace',
+    title: 'Terrace Sunset Highball Lounge',
+    category: 'House Parties',
+    venue: 'Indiranagar · Bengaluru',
+    image: '/images/house-party-terrace.jpg',
+    alt: 'Guests enjoying craft highballs around a mobile wooden bar on a lush Bengaluru terrace at sunset',
+    desc: 'Modular mobile bar setup on private terrace with botanical tonics and cold-pressed citrus highballs.',
+    span: 'span-5'
+  },
+  {
+    id: 'mixology-masterclass-teams',
+    title: 'Corporate Systems Mixology Lab',
+    category: 'Workshops',
+    venue: 'Tech Campus · Bengaluru',
+    image: '/images/mixology-workshop.jpg',
+    alt: 'Participants laughing and shaking cocktails together during hands-on mixology workshop',
+    desc: 'Interactive team-building masterclass exploring dilution kinetics, flavor balance and timed cocktail challenges.',
+    span: 'span-6'
+  },
+  {
+    id: 'festival-main-stage-bar',
+    title: 'Concert Main Bar Rapid Operations',
+    category: 'Festivals',
+    venue: 'Open-Air Arena · Bengaluru',
+    image: '/images/festival-operations.jpg',
+    alt: 'Fast festival bar operations serving thousands under purple stage lights',
+    desc: 'High-speed, multi-point tap dispensers and pre-batched craft serves engineered for surge crowds.',
+    span: 'span-6'
+  },
+  {
+    id: 'birthday-gold-shots',
+    title: 'Illuminated Milestone Shot Ritual',
+    category: 'Birthdays',
+    venue: 'Private VIP Salon',
+    image: '/images/birthday-shot-ritual.jpg',
+    alt: 'Glowing shot board with smoking rosemary and gold dust shooters with celebrating friends',
+    desc: 'Custom illuminated shooter board with torched botanical garnishes and synchronized birthday countdown toast.',
+    span: 'span-6'
+  },
+  {
+    id: 'cocktail-lab-apothecary',
+    title: 'Apothecary Infusions & Cordial Research',
+    category: 'Cocktail Craft',
+    venue: 'Cocktail Lab Bengaluru',
+    image: '/images/cocktail-lab-syrups.jpg',
+    alt: 'Artisanal syrups, dehydrated citrus wheels, brass scale and lab recipe book',
+    desc: 'Behind-the-scenes flavour architecture, lacto-fermented syrups, and small-batch botanical distillates.',
+    span: 'span-6'
+  },
+  {
+    id: 'founders-craft-station',
+    title: 'Founders Monish & Bharath Behind the Bar',
+    category: 'Cocktail Craft',
+    venue: 'Bar Chef Bengaluru',
+    image: '/images/founders.jpg',
+    alt: 'Founders Monish Raj D A and Bharath Venkatesh crafting cocktails with bespoke bar tools',
+    desc: 'Co-founders Monish and Bharath bringing culinary cocktail creativity and hospitality operational rigour.',
+    span: 'span-12'
   }
 ];
 
@@ -267,6 +337,10 @@ export default function GalleryView() {
                 loading="lazy"
                 width={960}
                 height={540}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/frames/01_martini_reveal/poster.webp';
+                }}
               />
             </div>
             <div className="gallery-info">
@@ -364,6 +438,10 @@ export default function GalleryView() {
               <img
                 src={activeItem.image}
                 alt={activeItem.alt}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/frames/01_martini_reveal/poster.webp';
+                }}
                 style={{
                   maxWidth: '100%',
                   maxHeight: '70vh',

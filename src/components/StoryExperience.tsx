@@ -311,6 +311,10 @@ export default function StoryExperience() {
                     loading="lazy"
                     width={960}
                     height={540}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/frames/01_martini_reveal/poster.webp';
+                    }}
                   />
                 </div>
               )}
