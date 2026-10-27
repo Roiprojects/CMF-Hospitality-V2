@@ -1,0 +1,479 @@
+{
+  "version": "2.0.0",
+  "updatedAt": "2026-10-26T04:44:26.412Z",
+  "encoding": "high-quality-lossy",
+  "quality": 90,
+  "nativeResolution": {
+    "width": 1920,
+    "height": 1080,
+    "aspectRatio": "16:9"
+  },
+  "fps": 24,
+  "totalScenes": 8,
+  "totalFrames": 1920,
+  "scenes": {
+    "01_martini_reveal": {
+      "id": "01_martini_reveal",
+      "order": 1,
+      "num": "01",
+      "title": "THE REVEAL",
+      "sceneName": "Smoke Parting Around the Glass",
+      "headline": "Beyond the Glass.",
+      "supporting": "Curiosity begins before the first sip. A dramatic mist parts to reveal bespoke mixology by Bar Chef Bengaluru.",
+      "ctaText": "Discover our story ↓",
+      "ctaHref": "#story",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/01_martini_reveal/poster.webp",
+      "stillFrame": "/frames/01_martini_reveal/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.52
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/01_martini_reveal/",
+          "totalBytes": 12516466
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/01_martini_reveal/sm/",
+          "totalBytes": 3700724
+        }
+      },
+      "scrollWeight": 1,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.52
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "shutter",
+        "frames": 2,
+        "color": "rgba(2, 8, 9, 0.85)",
+        "description": "Clean shutter cut to avoid double-stem ghosting with pouring stream"
+      },
+      "knownLimitations": "Centred martini glass; smoke expands outward; dark background"
+    },
+    "02_cocktail_falling": {
+      "id": "02_cocktail_falling",
+      "order": 2,
+      "num": "02",
+      "title": "THE POUR",
+      "sceneName": "Cocktail Descending into Glass",
+      "headline": "Crafted with Character.",
+      "supporting": "Every great evening begins with a pour — rich, vibrant blends falling into crystal with fluid grace.",
+      "ctaText": "Explore our services ↗",
+      "ctaHref": "/services",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/02_cocktail_falling/poster.webp",
+      "stillFrame": "/frames/02_cocktail_falling/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/02_cocktail_falling/",
+          "totalBytes": 12988548
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/02_cocktail_falling/sm/",
+          "totalBytes": 3660912
+        }
+      },
+      "scrollWeight": 1.25,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "editorial-cut",
+        "frames": 2,
+        "color": "rgba(2, 8, 9, 0.85)",
+        "description": "Editorial cut when liquid settles to align with lemon garnish"
+      },
+      "knownLimitations": "Narrow liquid stream from top-centre; partial vessel at top y:0-12%"
+    },
+    "03_lemon_garnish": {
+      "id": "03_lemon_garnish",
+      "order": 3,
+      "num": "03",
+      "title": "THE GARNISH",
+      "sceneName": "Lemon Garnish Settling",
+      "headline": "The Finishing Touch.",
+      "supporting": "Precision in every botanical detail — fresh citrus zest meets crisp artisanal spirits and subtle aromatics.",
+      "ctaText": "View cocktail menu ↗",
+      "ctaHref": "/services",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/03_lemon_garnish/poster.webp",
+      "stillFrame": "/frames/03_lemon_garnish/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/03_lemon_garnish/",
+          "totalBytes": 11737940
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/03_lemon_garnish/sm/",
+          "totalBytes": 3378580
+        }
+      },
+      "scrollWeight": 1.2,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "editorial-cut",
+        "frames": 2,
+        "color": "rgba(2, 8, 9, 0.85)",
+        "description": "Clean editorial cut bridging citrus garnish to amber immersion"
+      },
+      "knownLimitations": "Lemon peel plunges into centre; glass rim slightly larger in scale"
+    },
+    "04_enter_cocktail": {
+      "id": "04_enter_cocktail",
+      "order": 4,
+      "num": "04",
+      "title": "THE IMMERSION",
+      "sceneName": "Camera Moving into Amber Cocktail",
+      "headline": "Into the Heart of the Craft.",
+      "supporting": "Moving beyond the glass rim into pure liquid immersion — botanical distillates, nuanced infusions and calibrated clarity.",
+      "ctaText": "Explore cocktail craft ↗",
+      "ctaHref": "/services",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/04_enter_cocktail/poster.webp",
+      "stillFrame": "/frames/04_enter_cocktail/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.48
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/04_enter_cocktail/",
+          "totalBytes": 12935388
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/04_enter_cocktail/sm/",
+          "totalBytes": 3882064
+        }
+      },
+      "scrollWeight": 1.15,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.48
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "fluid-dissolve",
+        "frames": 2,
+        "color": "rgba(192, 161, 107, 0.45)",
+        "description": "Fluid continuity dissolve into internal micro-bubbles"
+      },
+      "knownLimitations": "Macro fluid meniscus; high refractive glare; no exterior glass structure"
+    },
+    "05_amber_journey": {
+      "id": "05_amber_journey",
+      "order": 5,
+      "num": "05",
+      "title": "THE INFUSION",
+      "sceneName": "Camera Gliding Through Amber Liquid",
+      "headline": "Where Science Meets Sensory.",
+      "supporting": "Every golden bubble and micro-infusion reflects precise temperature, balanced dilution and meticulous flavour chemistry.",
+      "ctaText": "Explore mixology workshops ↗",
+      "ctaHref": "/services/workshops",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/05_amber_journey/poster.webp",
+      "stillFrame": "/frames/05_amber_journey/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/05_amber_journey/",
+          "totalBytes": 21936380
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/05_amber_journey/sm/",
+          "totalBytes": 7225476
+        }
+      },
+      "scrollWeight": 1.25,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "cream-gold-pulse",
+        "frames": 3,
+        "color": "rgba(241, 232, 216, 0.65)",
+        "description": "Warm cream/gold pulse bridging amber liquid and wedding event lighting"
+      },
+      "knownLimitations": "Abstract macro golden liquid and bubbles; no physical glassware"
+    },
+    "06_wedding": {
+      "id": "06_wedding",
+      "order": 6,
+      "num": "06",
+      "title": "THE CELEBRATION",
+      "sceneName": "Cocktail on Bar at Wedding",
+      "headline": "One Wedding. Many Different Moods.",
+      "supporting": "Luxury cocktail bars tailored for intimate vows, high-energy sangeets and timeless receptions.",
+      "ctaText": "Plan a wedding experience ↗",
+      "ctaHref": "/contact?service=weddings",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/06_wedding/poster.webp",
+      "stillFrame": "/frames/06_wedding/0119.webp",
+      "focalPosition": {
+        "x": 0.52,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/06_wedding/",
+          "totalBytes": 22094114
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/06_wedding/sm/",
+          "totalBytes": 6911290
+        }
+      },
+      "scrollWeight": 1.05,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.52,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "editorial-cut",
+        "frames": 2,
+        "color": "rgba(2, 8, 9, 0.85)",
+        "description": "Clean editorial cut between warm wedding bar and rooftop twilight"
+      },
+      "knownLimitations": "Cocktail on decorated wedding bar; floral bokeh; warm ambient lighting"
+    },
+    "07_rooftop_party": {
+      "id": "07_rooftop_party",
+      "order": 7,
+      "num": "07",
+      "title": "THE NIGHTLIFE",
+      "sceneName": "Cocktail at Sunset Rooftop Party",
+      "headline": "Your People. Your Kind of Celebration.",
+      "supporting": "High-energy rooftop gatherings with bespoke bar counters and curated craft menus.",
+      "ctaText": "Curate your party ↗",
+      "ctaHref": "/contact?service=private-parties",
+      "isPrimaryCta": false,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/07_rooftop_party/poster.webp",
+      "stillFrame": "/frames/07_rooftop_party/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/07_rooftop_party/",
+          "totalBytes": 19899066
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/07_rooftop_party/sm/",
+          "totalBytes": 6164216
+        }
+      },
+      "scrollWeight": 1.05,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "editorial-cut",
+        "frames": 2,
+        "color": "rgba(2, 8, 9, 0.85)",
+        "description": "Clean editorial cut between twilight rooftop and concert stage lights"
+      },
+      "knownLimitations": "Cocktail held against sunset city skyline; distinct glass angle"
+    },
+    "08_music_festival": {
+      "id": "08_music_festival",
+      "order": 8,
+      "num": "08",
+      "title": "THE FESTIVAL",
+      "sceneName": "Cocktail at Outdoor Music Festival",
+      "headline": "One Festival. Thousands of Moods.",
+      "supporting": "High-speed, high-capacity craft cocktail bars designed to move seamlessly with the festival rhythm.",
+      "ctaText": "Book an event bar ↗",
+      "ctaHref": "/contact?service=festivals",
+      "isPrimaryCta": true,
+      "frameCount": 240,
+      "fps": 24,
+      "filenamePattern": "%04d.webp",
+      "firstFrame": "0000.webp",
+      "lastFrame": "0239.webp",
+      "posterImage": "/frames/08_music_festival/poster.webp",
+      "stillFrame": "/frames/08_music_festival/0119.webp",
+      "focalPosition": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "trimRange": {
+        "start": 0,
+        "end": 239
+      },
+      "dimensions": {
+        "standard": {
+          "width": 1920,
+          "height": 1080,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/08_music_festival/",
+          "totalBytes": 23749498
+        },
+        "compact": {
+          "width": 960,
+          "height": 540,
+          "aspectRatio": "16:9",
+          "urlPrefix": "/frames/08_music_festival/sm/",
+          "totalBytes": 6268014
+        }
+      },
+      "scrollWeight": 1.05,
+      "fitMode": "split-screen",
+      "safeTextArea": "left-column",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "optionalCrop": null,
+      "transition": {
+        "type": "unpin-exit",
+        "frames": 0,
+        "description": "Smooth scroll unpin transition into homepage #story overview"
+      },
+      "knownLimitations": "Outdoor concert crowd with dynamic stage lights; drink in foreground"
+    }
+  }
+}

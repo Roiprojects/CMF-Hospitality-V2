@@ -1,6 +1,12 @@
 inputs_and_frames
 source-videos
+BarChef_Extracted_Frames
+BarChef_1920_Frames.zip
+*.zip
+*.rar
+*.ps1
 .git
 out
 .next
 node_modules
+

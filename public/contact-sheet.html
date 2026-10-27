@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bar Chef Bengaluru — 8-Scene Contact Sheet & Visual Continuity Audit</title>
+  <style>
+    :root {
+      --bg: #091011;
+      --card-bg: #0f191b;
+      --gold: #c0a16b;
+      --cream: #f1e8d8;
+      --muted: #9aa8a6;
+      --border: rgba(192, 161, 107, 0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 40px 5%;
+      line-height: 1.6;
+    }
+    header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 36px;
+      color: var(--cream);
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: var(--gold);
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .notes-box {
+      background: rgba(192, 161, 107, 0.08);
+      border: 1px solid var(--gold);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      border-radius: 4px;
+    }
+    .notes-box h3 {
+      color: var(--gold);
+      font-size: 16px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .notes-box ul {
+      padding-left: 20px;
+      color: #cfd8d6;
+      font-size: 14px;
+    }
+    .notes-box li { margin-bottom: 6px; }
+    .scene-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 28px;
+      margin-bottom: 36px;
+    }
+    .scene-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+    .scene-title {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      color: var(--cream);
+    }
+    .scene-order {
+      color: var(--gold);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+    }
+    .frame-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .frame-box {
+      background: #000;
+      border: 1px solid #233133;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .frame-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+    .frame-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      padding: 3px 8px;
+      font-size: 11px;
+      color: var(--gold);
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+    }
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .analysis-item strong {
+      color: var(--gold);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .analysis-item p {
+      color: #b5c4c2;
+    }
+    .continuity-banner {
+      background: #152225;
+      border-left: 3px solid var(--gold);
+      padding: 12px 16px;
+      margin: 20px 0 36px;
+      font-size: 13px;
+      color: #c5d4d2;
+    }
+    .continuity-banner strong {
+      color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="subtitle">Bar Chef Bengaluru · Asset Evaluation</p>
+    <h1>8-Scene Contact Sheet & Visual Continuity Audit</h1>
+    <p style="color: var(--muted); font-size: 14px; margin-top: 6px;">
+      Auditing actual frame 0000 (first), frame 0120 (middle), and frame 0239 (last) across all 8 master video sequences (1,920 frames total at 1920×1080 native 24fps).
+    </p>
+  </header>
+
+  <div class="notes-box">
+    <h3>Honest Source Limitations Assessment (Baked into Footage)</h3>
+    <ul>
+      <li><strong>Centred Glass Positioning:</strong> In scenes 1, 2, 3, 6, 7, and 8, the cocktail glass is centrally composed in the 16:9 canvas. Centred overlay copy blocks the glassware.</li>
+      <li><strong>Glass Scale & Placement Variations:</strong> Glass scale increases from Scene 1 to Scene 3 (tightening into the rim for garnish drop). Scene 6 and 7 show distinct glass angles and bar heights.</li>
+      <li><strong>Scene 2 Pouring Stream & Partial Vessel:</strong> A pouring stream and partial mixing vessel enter from the top-centre (y: 0–12%). Vertical cropping would chop this action.</li>
+      <li><strong>Editorial Strategy:</strong> Desktop uses an elegant split-screen / left text column on deep slate with a feathered soft boundary to keep glasses 100% visible and unclipped. Mobile uses an inset landscape visual beneath headings. Scenes 4 & 5 fade text out completely for immersive liquid travel.</li>
+    </ul>
+  </div>
+
+  <section class="scene-card" id="scene-01_martini_reveal">
+    <div class="scene-header">
+      <h2 class="scene-title">01. Martini Reveal (Smoke) — <em>Smoke Parting Around the Glass</em></h2>
+      <span class="scene-order">Order 1/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/01_martini_reveal/0000.webp" alt="Smoke Parting Around the Glass First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/01_martini_reveal/0120.webp" alt="Smoke Parting Around the Glass Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/01_martini_reveal/0239.webp" alt="Smoke Parting Around the Glass Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Martini glass is centrally anchored; smoke disperses outwards; dark ambient backdrop.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Centred (x: 50%, y: 52%)</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left column (0–40% width) with gradient shield, or split-screen.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Above/below canvas; keep 16:9 full-width contain so stem is not clipped.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 1 → 2 (01_martini_reveal to 02_cocktail_falling):</strong>
+      Shutter cut (avoids double-stem ghosting with pouring stream).
+    </div>
+    
+  <section class="scene-card" id="scene-02_cocktail_falling">
+    <div class="scene-header">
+      <h2 class="scene-title">02. Cocktail Falling — <em>Cocktail Descending into Glass</em></h2>
+      <span class="scene-order">Order 2/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/02_cocktail_falling/0000.webp" alt="Cocktail Descending into Glass First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/02_cocktail_falling/0120.webp" alt="Cocktail Descending into Glass Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/02_cocktail_falling/0239.webp" alt="Cocktail Descending into Glass Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Narrow stream entering from top-centre; partial pouring vessel visible at top edge.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Centred (x: 50%, y: 50%), vessel top edge at y: 0–12%</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left column; preserve upper-centre stream and splash basin.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Inset landscape visual beneath typography; no vertical cropping to protect vessel/stream.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 2 → 3 (02_cocktail_falling to 03_lemon_garnish):</strong>
+      Clean editorial cut on splash settling (liquid volume matches Scene 3 start).
+    </div>
+    
+  <section class="scene-card" id="scene-03_lemon_garnish">
+    <div class="scene-header">
+      <h2 class="scene-title">03. Lemon Garnish — <em>Lemon Garnish Settling</em></h2>
+      <span class="scene-order">Order 3/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/03_lemon_garnish/0000.webp" alt="Lemon Garnish Settling First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/03_lemon_garnish/0120.webp" alt="Lemon Garnish Settling Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/03_lemon_garnish/0239.webp" alt="Lemon Garnish Settling Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Lemon peel plunges into glass centre; liquid ripples expand; glass scale slightly larger.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Centred (x: 50%, y: 50%), rim extends wider than Scene 1</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left text column; keep 42–100% video area clear for droplet spray.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Landscape inset; keep rim and falling lemon peel in complete view.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 3 → 4 (03_lemon_garnish to 04_enter_cocktail):</strong>
+      Direct zoom-in cut into liquid surface (preparing for Scene 4 immersion).
+    </div>
+    
+  <section class="scene-card" id="scene-04_enter_cocktail">
+    <div class="scene-header">
+      <h2 class="scene-title">04. Enter Cocktail (Immersion) — <em>Camera Moving into Amber Cocktail</em></h2>
+      <span class="scene-order">Order 4/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/04_enter_cocktail/0000.webp" alt="Camera Moving into Amber Cocktail First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/04_enter_cocktail/0120.webp" alt="Camera Moving into Amber Cocktail Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/04_enter_cocktail/0239.webp" alt="Camera Moving into Amber Cocktail Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Camera plunges past liquid meniscus; abstract fluid geometry, high refractive glare.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Macro dive (no exterior glass geometry); liquid fills entire canvas</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Full-bleed immersive visual. Editorial text fades OUT completely.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Full-bleed landscape/contain. Text fades OUT.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 4 → 5 (04_enter_cocktail to 05_amber_journey):</strong>
+      Continuous fluid dissolve into Scene 5 internal bubbles.
+    </div>
+    
+  <section class="scene-card" id="scene-05_amber_journey">
+    <div class="scene-header">
+      <h2 class="scene-title">05. Amber Journey — <em>Camera Gliding Through Amber Liquid</em></h2>
+      <span class="scene-order">Order 5/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/05_amber_journey/0000.webp" alt="Camera Gliding Through Amber Liquid First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/05_amber_journey/0120.webp" alt="Camera Gliding Through Amber Liquid Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/05_amber_journey/0239.webp" alt="Camera Gliding Through Amber Liquid Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Abstract macro amber liquid with floating micro-bubbles and golden light shafts.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Macro internal liquid; no glass boundary</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Full-bleed visual; zero text overlay for maximum cinematic immersion.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Full-bleed visual; zero text overlay.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 5 → 6 (05_amber_journey to 06_wedding):</strong>
+      Warm gold/cream transition into luxury wedding bar (matches amber radiance).
+    </div>
+    
+  <section class="scene-card" id="scene-06_wedding">
+    <div class="scene-header">
+      <h2 class="scene-title">06. Wedding Celebration — <em>Cocktail on Bar at Wedding</em></h2>
+      <span class="scene-order">Order 6/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/06_wedding/0000.webp" alt="Cocktail on Bar at Wedding First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/06_wedding/0120.webp" alt="Cocktail on Bar at Wedding Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/06_wedding/0239.webp" alt="Cocktail on Bar at Wedding Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Cocktail on decorated wedding bar counter; warm bokeh, floral accents; distinct lighting.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Slightly right of centre (x: 52%, y: 50%)</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left editorial column on deep slate/cream; soft boundary to video.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Landscape inset card beneath heading.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 6 → 7 (06_wedding to 07_rooftop_party):</strong>
+      Clean editorial cut (avoids overlapping wedding floral with rooftop twilight).
+    </div>
+    
+  <section class="scene-card" id="scene-07_rooftop_party">
+    <div class="scene-header">
+      <h2 class="scene-title">07. Rooftop Twilight Party — <em>Cocktail at Sunset Rooftop Party</em></h2>
+      <span class="scene-order">Order 7/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/07_rooftop_party/0000.webp" alt="Cocktail at Sunset Rooftop Party First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/07_rooftop_party/0120.webp" alt="Cocktail at Sunset Rooftop Party Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/07_rooftop_party/0239.webp" alt="Cocktail at Sunset Rooftop Party Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Cocktail against city dusk skyline; cool blue/violet sky with amber rim glow.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Centred (x: 50%, y: 50%)</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left editorial column; soft dark boundary to city skyline.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Landscape inset card beneath heading.</p>
+      </div>
+    </div>
+  </section>
+  
+    <div class="continuity-banner">
+      <strong>Transition 7 → 8 (07_rooftop_party to 08_music_festival):</strong>
+      Clean editorial cut between rooftop and concert festival stage lights.
+    </div>
+    
+  <section class="scene-card" id="scene-08_music_festival">
+    <div class="scene-header">
+      <h2 class="scene-title">08. Music Festival Finale — <em>Cocktail at Outdoor Music Festival</em></h2>
+      <span class="scene-order">Order 8/8 · 240 Frames (0000–0239) · 1080p</span>
+    </div>
+
+    <div class="frame-grid">
+      <div class="frame-box">
+        <img src="/frames/08_music_festival/0000.webp" alt="Cocktail at Outdoor Music Festival First Frame" loading="lazy">
+        <span class="frame-tag">First (Frame 0000)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/08_music_festival/0120.webp" alt="Cocktail at Outdoor Music Festival Middle Frame" loading="lazy">
+        <span class="frame-tag">Middle (Frame 0120)</span>
+      </div>
+      <div class="frame-box">
+        <img src="/frames/08_music_festival/0239.webp" alt="Cocktail at Outdoor Music Festival Last Frame" loading="lazy">
+        <span class="frame-tag">Last (Frame 0239)</span>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <strong>Source Geometry & Limitations</strong>
+        <p>Outdoor festival crowd with dynamic stage lighting; cocktail held in foreground.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Focal Point & Glass Anchor</strong>
+        <p>Centred (x: 50%, y: 50%)</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Desktop Safe Text Composition</strong>
+        <p>Left editorial column with final CTA; soft boundary.</p>
+      </div>
+      <div class="analysis-item">
+        <strong>Mobile Inset Layout</strong>
+        <p>Landscape inset card with primary action button below.</p>
+      </div>
+    </div>
+  </section>
+  
+  <footer style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); text-align: center;">
+    Bar Chef Bengaluru · Verified Asset Engine & Contact Sheet
+  </footer>
+</body>
+</html>

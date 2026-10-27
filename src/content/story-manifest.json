@@ -1,57 +1,90 @@
 {
-  "pour": {
-    "folder": "pour",
-    "urlPrefix": "/frames/pour/",
+  "01_martini_reveal": {
+    "folder": "01_martini_reveal",
+    "urlPrefix": "/frames/01_martini_reveal/",
     "frameCount": 240,
     "firstFrame": "0000.webp",
     "lastFrame": "0239.webp",
-    "width": 3840,
-    "height": 2160,
+    "width": 1920,
+    "height": 1080,
     "missingFrames": [],
-    "totalBytes": 380017296
+    "totalBytes": 12516466
   },
-  "assembly": {
-    "folder": "assembly",
-    "urlPrefix": "/frames/assembly/",
+  "02_cocktail_falling": {
+    "folder": "02_cocktail_falling",
+    "urlPrefix": "/frames/02_cocktail_falling/",
     "frameCount": 240,
     "firstFrame": "0000.webp",
     "lastFrame": "0239.webp",
-    "width": 3840,
-    "height": 2160,
+    "width": 1920,
+    "height": 1080,
     "missingFrames": [],
-    "totalBytes": 476624904
+    "totalBytes": 12988548
   },
-  "inside": {
-    "folder": "inside",
-    "urlPrefix": "/frames/inside/",
+  "03_lemon_garnish": {
+    "folder": "03_lemon_garnish",
+    "urlPrefix": "/frames/03_lemon_garnish/",
     "frameCount": 240,
     "firstFrame": "0000.webp",
     "lastFrame": "0239.webp",
-    "width": 3840,
-    "height": 2160,
+    "width": 1920,
+    "height": 1080,
     "missingFrames": [],
-    "totalBytes": 410787660
+    "totalBytes": 11737940
   },
-  "inside-alternate": {
-    "folder": "inside-alternate",
-    "urlPrefix": "/frames/inside-alternate/",
+  "04_enter_cocktail": {
+    "folder": "04_enter_cocktail",
+    "urlPrefix": "/frames/04_enter_cocktail/",
     "frameCount": 240,
     "firstFrame": "0000.webp",
     "lastFrame": "0239.webp",
-    "width": 3840,
-    "height": 2160,
+    "width": 1920,
+    "height": 1080,
     "missingFrames": [],
-    "totalBytes": 469587986
+    "totalBytes": 12935388
   },
-  "occasions": {
-    "folder": "occasions",
-    "urlPrefix": "/frames/occasions/",
+  "05_amber_journey": {
+    "folder": "05_amber_journey",
+    "urlPrefix": "/frames/05_amber_journey/",
     "frameCount": 240,
     "firstFrame": "0000.webp",
     "lastFrame": "0239.webp",
-    "width": 3840,
-    "height": 2160,
+    "width": 1920,
+    "height": 1080,
     "missingFrames": [],
-    "totalBytes": 548469210
+    "totalBytes": 21936380
+  },
+  "06_wedding": {
+    "folder": "06_wedding",
+    "urlPrefix": "/frames/06_wedding/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 22094114
+  },
+  "07_rooftop_party": {
+    "folder": "07_rooftop_party",
+    "urlPrefix": "/frames/07_rooftop_party/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 19899066
+  },
+  "08_music_festival": {
+    "folder": "08_music_festival",
+    "urlPrefix": "/frames/08_music_festival/",
+    "frameCount": 240,
+    "firstFrame": "0000.webp",
+    "lastFrame": "0239.webp",
+    "width": 1920,
+    "height": 1080,
+    "missingFrames": [],
+    "totalBytes": 23749498
   }
 }

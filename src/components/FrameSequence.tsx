@@ -1,27 +1,111 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
-import sequence from '@/content/story-sequence.json';
+import scenesManifest from '@/content/scenes-manifest.json';
 
 interface FrameSequenceProps {
   progress: MutableRefObject<number>;
   onReady: (ready: boolean) => void;
+  activeChapterRef: MutableRefObject<number>;
 }
 
-const CLIPS: string[] = sequence.clips || ['pour', 'assembly', 'inside', 'inside-alternate', 'occasions'];
-const FRAMES_PER_CLIP = sequence.framesPerClip || 240;
-const TOTAL_FRAMES = CLIPS.length * FRAMES_PER_CLIP; // 1200 frames across the 5 cinematic scenes
-const LAST_FRAME = TOTAL_FRAMES - 1; // 1199
+export interface SceneConfig {
+  id: string;
+  order: number;
+  num: string;
+  title: string;
+  sceneName: string;
+  headline: string;
+  supporting: string;
+  ctaText?: string;
+  ctaHref?: string;
+  isPrimaryCta?: boolean;
+  scrollWeight: number;
+  trimRange: { start: number; end: number };
+  fitMode: string;
+  safeTextArea: string;
+  focalPoint: { x: number; y: number };
+  transition: { type: string; frames: number; color?: string; description?: string };
+  knownLimitations?: string;
+  posterImage: string;
+  stillFrame: string;
+  startProgress: number;
+  endProgress: number;
+  frameCount: number;
+}
 
-export default function FrameSequence({ progress, onReady }: FrameSequenceProps) {
+// Compute deterministic progress intervals based on configurable scroll weights & trim ranges
+export function getTimelineConfiguration(): { scenes: SceneConfig[]; totalWeight: number } {
+  const rawScenes = Object.values(scenesManifest.scenes).sort((a, b) => a.order - b.order);
+  const totalWeight = rawScenes.reduce((acc, s) => acc + (s.scrollWeight || 1.0), 0);
+
+  let accumulated = 0;
+  const scenes: SceneConfig[] = rawScenes.map((s, index) => {
+    const weight = s.scrollWeight || 1.0;
+    const startProgress = accumulated;
+    accumulated += weight / totalWeight;
+    const endProgress = index === rawScenes.length - 1 ? 1.0 : accumulated;
+
+    const trimStart = Math.max(0, s.trimRange?.start ?? 0);
+    const trimEnd = Math.min(239, s.trimRange?.end ?? 239);
+    const frameCount = trimEnd - trimStart + 1;
+
+    return {
+      id: s.id,
+      order: s.order,
+      num: s.num,
+      title: s.title,
+      sceneName: s.sceneName,
+      headline: s.headline,
+      supporting: s.supporting,
+      ctaText: s.ctaText,
+      ctaHref: s.ctaHref,
+      isPrimaryCta: s.isPrimaryCta,
+      scrollWeight: weight,
+      trimRange: { start: trimStart, end: trimEnd },
+      fitMode: s.fitMode || 'split-screen',
+      safeTextArea: s.safeTextArea || 'left-column',
+      focalPoint: s.focalPoint || { x: 0.5, y: 0.5 },
+      transition: s.transition || { type: 'shutter', frames: 2 },
+      knownLimitations: s.knownLimitations,
+      posterImage: s.posterImage,
+      stillFrame: s.stillFrame,
+      startProgress,
+      endProgress,
+      frameCount
+    };
+  });
+
+  return { scenes, totalWeight };
+}
+
+const { scenes: SCENE_TIMELINE } = getTimelineConfiguration();
+
+// Memory bounds: strictly never load all 1,920 frames into memory
+const MAX_LOADED_CACHE = 32;
+const FORWARD_PRELOAD = 14;
+const BACKWARD_PRELOAD = 6;
+const MAX_CONCURRENT_REQUESTS = 6;
+
+interface CacheEntry {
+  key: string;
+  sceneId: string;
+  frameNum: number;
+  img: HTMLImageElement;
+  bitmap?: ImageBitmap;
+  ready: boolean;
+}
+
+export default function FrameSequence({ progress, onReady, activeChapterRef }: FrameSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [status, setStatus] = useState('Buffering 4K film sequence…');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState('Buffering opening scene…');
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
 
-    // Solid opaque 2D canvas for instant hardware blit
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
@@ -32,229 +116,400 @@ export default function FrameSequence({ progress, onReady }: FrameSequenceProps)
     let rafId = 0;
     let lastTime = performance.now();
 
-    // Authoritative playhead state (strictly bound to user's scroll)
-    let smoothedPlayhead = Math.min(LAST_FRAME, Math.max(0, (progress.current || 0) * LAST_FRAME));
-    let paintedFrame = -1;
+    // Check viewport width for responsive delivery variant (compact 540p vs standard 1080p)
+    const isCompact = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    // Animation state in mutable variables (zero React re-renders during 60fps scrub)
+    let smoothedProgress = Math.min(1, Math.max(0, progress.current || 0));
+    let lastDrawnKey = '';
+    let lastRenderW = 0;
+    let lastRenderH = 0;
     let scrollDirection: 1 | -1 = 1;
-    let prevProgress = progress.current || 0;
-    let initialReadyNotified = false;
+    let prevRawProgress = progress.current || 0;
+    let initialPosterPainted = false;
+    let mostRecentValidImage: HTMLImageElement | ImageBitmap | null = null;
 
-    // Complete image registry for all 1200 frames
-    const images: (HTMLImageElement | null)[] = new Array(TOTAL_FRAMES).fill(null);
-    const inFlight = new Set<number>();
-    const failedSet = new Set<number>();
+    // Cache: Map<"${sceneId}_${frameNum}", CacheEntry>
+    const cache = new Map<string, CacheEntry>();
+    const inFlight = new Set<string>();
+    const failedSet = new Set<string>();
 
-    const getUrl = (frameIndex: number): string => {
-      const clipIdx = Math.min(CLIPS.length - 1, Math.max(0, Math.floor(frameIndex / FRAMES_PER_CLIP)));
-      const frameNum = frameIndex % FRAMES_PER_CLIP;
-      return `/frames/${CLIPS[clipIdx]}/${String(frameNum).padStart(4, '0')}.webp`;
+    const getFrameUrl = (sceneId: string, frameNum: number): string => {
+      const sub = isCompact ? 'sm/' : '';
+      return `/frames/${sceneId}/${sub}${String(frameNum).padStart(4, '0')}.webp`;
     };
 
-    // Draw single 100% solid frame onto canvas (no ghosting, razor-sharp details)
-    const drawFrame = (frameIndex: number, img: HTMLImageElement) => {
-      ctx.drawImage(img, 0, 0, 3840, 2160);
-
-      // Clean restrained 2-frame cinema shutter cut at scene boundaries only
-      const frameInClip = frameIndex % FRAMES_PER_CLIP;
-      const isBoundaryEnd = frameInClip >= FRAMES_PER_CLIP - 2 && frameIndex < LAST_FRAME;
-      const isBoundaryStart = frameInClip <= 1 && frameIndex > 0;
-
-      if (isBoundaryEnd || isBoundaryStart) {
-        let shutterAlpha = 0;
-        if (isBoundaryEnd) {
-          shutterAlpha = frameInClip === FRAMES_PER_CLIP - 2 ? 0.45 : 0.85;
-        } else {
-          shutterAlpha = frameInClip === 0 ? 0.85 : 0.45;
+    // Deterministically map normalized progress (0.0 to 1.0) to (sceneIndex, frameNum)
+    const mapProgressToSceneAndFrame = (p: number): { sceneIndex: number; scene: SceneConfig; frameNum: number } => {
+      const clamped = Math.min(1, Math.max(0, p));
+      let idx = 0;
+      for (let i = 0; i < SCENE_TIMELINE.length; i++) {
+        const sc = SCENE_TIMELINE[i];
+        if (clamped >= sc.startProgress && clamped <= sc.endProgress) {
+          idx = i;
+          break;
         }
-        ctx.fillStyle = `rgba(2, 8, 9, ${shutterAlpha})`;
-        ctx.fillRect(0, 0, 3840, 2160);
+        if (i === SCENE_TIMELINE.length - 1 && clamped >= sc.startProgress) {
+          idx = i;
+        }
       }
 
-      paintedFrame = frameIndex;
+      const sc = SCENE_TIMELINE[idx];
+      const span = sc.endProgress - sc.startProgress;
+      const localProgress = span > 0 ? Math.min(1, Math.max(0, (clamped - sc.startProgress) / span)) : 0;
+      const frameNum = Math.round(sc.trimRange.start + localProgress * (sc.trimRange.end - sc.trimRange.start));
 
-      if (!initialReadyNotified) {
-        initialReadyNotified = true;
+      return { sceneIndex: idx, scene: sc, frameNum };
+    };
+
+    // Resize canvas with correct 16:9 aspect ratio and sensible device-pixel-ratio cap
+    const updateCanvasDimensions = () => {
+      const rect = container.getBoundingClientRect();
+      const containerW = rect.width || window.innerWidth;
+      const containerH = rect.height || window.innerHeight;
+
+      // 16:9 contain aspect ratio
+      const targetAspect = 16 / 9;
+      let renderW = containerW;
+      let renderH = containerW / targetAspect;
+
+      if (renderH > containerH) {
+        renderH = containerH;
+        renderW = containerH * targetAspect;
+      }
+
+      // Sensible DPR cap at 2.0 to conserve mobile GPU / canvas memory
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const bufferW = Math.round(renderW * dpr);
+      const bufferH = Math.round(renderH * dpr);
+
+      let resized = false;
+      if (canvas.width !== bufferW || canvas.height !== bufferH) {
+        canvas.width = bufferW;
+        canvas.height = bufferH;
+        resized = true;
+      }
+
+      lastRenderW = renderW;
+      lastRenderH = renderH;
+      return resized;
+    };
+
+    // Draw frame onto canvas
+    const drawImageToCanvas = (drawable: HTMLImageElement | ImageBitmap, key: string, scene: SceneConfig, frameNum: number) => {
+      const cw = canvas.width;
+      const ch = canvas.height;
+      if (cw === 0 || ch === 0) return;
+
+      // Blit image
+      ctx.drawImage(drawable, 0, 0, cw, ch);
+
+      // Scene boundary transitions (editable in scenes-manifest.json, fully reversible with scroll)
+      const trans = scene.transition;
+      const transFrames = trans?.frames ?? 2;
+      const trimStart = scene.trimRange.start;
+      const trimEnd = scene.trimRange.end;
+
+      const isStart = transFrames > 0 && frameNum <= trimStart + transFrames && scene.order > 1;
+      const isEnd = transFrames > 0 && frameNum >= trimEnd - transFrames && scene.order < SCENE_TIMELINE.length;
+
+      if (isStart || isEnd) {
+        let t = 0;
+        if (isEnd) {
+          t = (frameNum - (trimEnd - transFrames)) / transFrames;
+        } else {
+          t = 1 - (frameNum - trimStart) / transFrames;
+        }
+        t = Math.min(1, Math.max(0, t));
+
+        if (trans?.type === 'cream-gold-pulse' || (isStart && SCENE_TIMELINE[scene.order - 2]?.transition?.type === 'cream-gold-pulse')) {
+          // Warm cream/gold luminous transition pulse between macro liquid & wedding scene
+          ctx.fillStyle = `rgba(241, 232, 216, ${(t * 0.70).toFixed(3)})`;
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.fillStyle = `rgba(192, 161, 107, ${(t * 0.35).toFixed(3)})`;
+          ctx.fillRect(0, 0, cw, ch);
+        } else if (trans?.type === 'fluid-dissolve') {
+          // Warm amber dissolve
+          ctx.fillStyle = `rgba(192, 161, 107, ${(t * 0.50).toFixed(3)})`;
+          ctx.fillRect(0, 0, cw, ch);
+        } else {
+          // Clean editorial cut / dark shutter (prevents ghosted double-glasses)
+          ctx.fillStyle = `rgba(2, 8, 9, ${(t * 0.85).toFixed(3)})`;
+          ctx.fillRect(0, 0, cw, ch);
+        }
+      }
+
+      lastDrawnKey = key;
+      mostRecentValidImage = drawable;
+
+      if (!initialPosterPainted) {
+        initialPosterPainted = true;
         onReady(true);
         setStatus('');
       }
     };
 
-    // Helper to check if an image is loaded and ready to draw
-    const isImageReady = (idx: number): boolean => {
-      const img = images[idx];
-      return Boolean(img && img.complete && img.naturalWidth > 0);
+    // Evict distant decoded images and close ImageBitmaps to never exceed memory bounds
+    const evictDistantFrames = (targetSceneIdx: number, targetFrame: number) => {
+      if (cache.size <= MAX_LOADED_CACHE) return;
+
+      const entriesWithDistance: { key: string; distance: number; entry: CacheEntry }[] = [];
+
+      for (const [key, entry] of cache.entries()) {
+        const scIdx = SCENE_TIMELINE.findIndex(s => s.id === entry.sceneId);
+        const sceneDistance = Math.abs(scIdx - targetSceneIdx);
+        const frameDistance = Math.abs(entry.frameNum - targetFrame);
+        const totalDist = sceneDistance * 300 + frameDistance;
+
+        entriesWithDistance.push({ key, distance: totalDist, entry });
+      }
+
+      // Sort by furthest distance
+      entriesWithDistance.sort((a, b) => b.distance - a.distance);
+
+      while (cache.size > MAX_LOADED_CACHE && entriesWithDistance.length > 0) {
+        const item = entriesWithDistance.shift();
+        if (item && item.key !== lastDrawnKey) {
+          // If ImageBitmap exists, close it explicitly
+          if (item.entry.bitmap) {
+            try { item.entry.bitmap.close(); } catch {}
+          }
+          // Release HTMLImageElement memory
+          item.entry.img.src = '';
+          cache.delete(item.key);
+          inFlight.delete(item.key);
+        }
+      }
     };
 
-    // Preload a single frame into the images array
-    const preloadFrame = (frameIndex: number, priority = false): void => {
-      if (
-        frameIndex < 0 ||
-        frameIndex > LAST_FRAME ||
-        disposed ||
-        isImageReady(frameIndex) ||
-        inFlight.has(frameIndex) ||
-        failedSet.has(frameIndex)
-      ) {
-        return;
-      }
+    // Preload a single frame with priority handling
+    const preloadSpecificFrame = (scene: SceneConfig, frameNum: number, priority = false): void => {
+      const key = `${scene.id}_${frameNum}`;
+      if (disposed || cache.has(key) || inFlight.has(key) || failedSet.has(key)) return;
 
-      // If not priority and too many requests in flight, defer
-      if (!priority && inFlight.size >= 12) {
-        return;
-      }
+      if (!priority && inFlight.size >= MAX_CONCURRENT_REQUESTS) return;
 
-      inFlight.add(frameIndex);
+      inFlight.add(key);
       const img = new Image();
-      images[frameIndex] = img;
-      img.src = getUrl(frameIndex);
+      const entry: CacheEntry = {
+        key,
+        sceneId: scene.id,
+        frameNum,
+        img,
+        ready: false
+      };
+      cache.set(key, entry);
+
+      img.src = getFrameUrl(scene.id, frameNum);
 
       img
         .decode()
         .then(() => {
-          inFlight.delete(frameIndex);
+          inFlight.delete(key);
           if (disposed) return;
 
-          // If the playhead is currently waiting on this exact frame, paint it immediately!
-          const currentTarget = Math.min(LAST_FRAME, Math.max(0, Math.round(smoothedPlayhead)));
-          if (frameIndex === currentTarget && paintedFrame !== currentTarget) {
-            drawFrame(frameIndex, img);
+          entry.ready = true;
+
+          // Attempt createImageBitmap for faster blit if supported
+          if (typeof window !== 'undefined' && 'createImageBitmap' in window) {
+            window.createImageBitmap(img).then(bmp => {
+              if (disposed) {
+                bmp.close();
+                return;
+              }
+              entry.bitmap = bmp;
+            }).catch(() => {});
+          }
+
+          // If the playhead is actively waiting for this exact frame, draw it immediately!
+          const cur = mapProgressToSceneAndFrame(smoothedProgress);
+          const curKey = `${cur.scene.id}_${cur.frameNum}`;
+          if (key === curKey && lastDrawnKey !== curKey) {
+            drawImageToCanvas(entry.bitmap || img, key, cur.scene, cur.frameNum);
           }
         })
         .catch(() => {
-          inFlight.delete(frameIndex);
-          failedSet.add(frameIndex);
+          inFlight.delete(key);
+          failedSet.add(key);
+          cache.delete(key);
         });
     };
 
-    // High-priority window preloader around current playhead
-    const updatePreloadWindow = (focusFrame: number, dir: 1 | -1) => {
-      // 1. Immediate priority: load the target frame and next 3 frames immediately
-      preloadFrame(focusFrame, true);
-      for (let i = 1; i <= 3; i++) {
-        preloadFrame(focusFrame + dir * i, true);
-      }
+    // Maintain bounded sliding preload window around current position
+    const updatePreloadWindow = (sceneIdx: number, frameNum: number, dir: 1 | -1) => {
+      const curScene = SCENE_TIMELINE[sceneIdx];
 
-      // 2. High-priority forward window: preload 30 frames ahead in direction of scroll
-      for (let i = 4; i <= 30; i++) {
-        const f = focusFrame + dir * i;
-        if (f >= 0 && f <= LAST_FRAME) {
-          preloadFrame(f, false);
+      // 1. Current target: immediate priority
+      preloadSpecificFrame(curScene, frameNum, true);
+
+      // 2. Forward window in scroll direction
+      for (let i = 1; i <= FORWARD_PRELOAD; i++) {
+        let nextF = frameNum + dir * i;
+        let nextSceneIdx = sceneIdx;
+        let nextScene = curScene;
+
+        if (nextF > curScene.trimRange.end && nextSceneIdx < SCENE_TIMELINE.length - 1) {
+          nextSceneIdx++;
+          nextScene = SCENE_TIMELINE[nextSceneIdx];
+          nextF = nextScene.trimRange.start + (nextF - curScene.trimRange.end - 1);
+        } else if (nextF < curScene.trimRange.start && nextSceneIdx > 0) {
+          nextSceneIdx--;
+          nextScene = SCENE_TIMELINE[nextSceneIdx];
+          nextF = nextScene.trimRange.end - (curScene.trimRange.start - nextF - 1);
+        }
+
+        if (nextF >= nextScene.trimRange.start && nextF <= nextScene.trimRange.end) {
+          preloadSpecificFrame(nextScene, nextF, i <= 3);
         }
       }
 
-      // 3. Reverse safety margin: keep 10 frames behind for instant scroll reversal
-      for (let i = 1; i <= 10; i++) {
-        const r = focusFrame - dir * i;
-        if (r >= 0 && r <= LAST_FRAME) {
-          preloadFrame(r, false);
+      // 3. Backward safety margin for instantaneous scroll reversal
+      for (let i = 1; i <= BACKWARD_PRELOAD; i++) {
+        let prevF = frameNum - dir * i;
+        let prevSceneIdx = sceneIdx;
+        let prevScene = curScene;
+
+        if (prevF < curScene.trimRange.start && prevSceneIdx > 0) {
+          prevSceneIdx--;
+          prevScene = SCENE_TIMELINE[prevSceneIdx];
+          prevF = prevScene.trimRange.end - (curScene.trimRange.start - prevF - 1);
+        } else if (prevF > curScene.trimRange.end && prevSceneIdx < SCENE_TIMELINE.length - 1) {
+          prevSceneIdx++;
+          prevScene = SCENE_TIMELINE[prevSceneIdx];
+          prevF = prevScene.trimRange.start + (prevF - curScene.trimRange.end - 1);
         }
+
+        if (prevF >= prevScene.trimRange.start && prevF <= prevScene.trimRange.end) {
+          preloadSpecificFrame(prevScene, prevF, false);
+        }
+      }
+
+      // 4. Enforce strict memory bounds
+      evictDistantFrames(sceneIdx, frameNum);
+    };
+
+    // Render initial poster immediately on mount
+    const loadInitialPoster = () => {
+      const initialScene = SCENE_TIMELINE[0];
+      const posterImg = new Image();
+      posterImg.src = initialScene.posterImage;
+      posterImg.onload = () => {
+        if (disposed || initialPosterPainted) return;
+        updateCanvasDimensions();
+        drawImageToCanvas(posterImg, 'initial_poster', initialScene, initialScene.trimRange.start);
+      };
+
+      // Preload first opening frames
+      for (let i = 0; i <= 6; i++) {
+        preloadSpecificFrame(initialScene, initialScene.trimRange.start + i, true);
       }
     };
 
-    // Direct scroll-coupled animation loop (NO AUTONOMOUS VIDEO PLAYBACK)
-    const loop = (now: number) => {
+    loadInitialPoster();
+    updateCanvasDimensions();
+
+    // Scroll-coupled animation loop (NO AUTOPLAY)
+    const renderLoop = (now: number) => {
       if (disposed) return;
 
       const dt = Math.min(0.06, Math.max(0.001, (now - lastTime) / 1000));
       lastTime = now;
 
-      // Authoritative target directly from user's scroll
-      const rawProgress = Math.min(1, Math.max(0, progress.current || 0));
-      const targetPlayhead = rawProgress * LAST_FRAME;
+      // Authoritative scroll progress from mutable ref
+      const targetProgress = Math.min(1, Math.max(0, progress.current || 0));
 
       // Detect scroll direction
-      if (rawProgress !== prevProgress) {
-        scrollDirection = rawProgress >= prevProgress ? 1 : -1;
-        prevProgress = rawProgress;
+      if (targetProgress !== prevRawProgress) {
+        scrollDirection = targetProgress >= prevRawProgress ? 1 : -1;
+        prevRawProgress = targetProgress;
       }
 
-      // Fast, responsive damping: settles in ~60-80ms so it halts INSTANTLY when scroll stops
+      // Responsive spring damping for fluid scroll settling
       const blend = 1 - Math.exp(-34 * dt);
-      const diff = targetPlayhead - smoothedPlayhead;
+      const diff = targetProgress - smoothedProgress;
 
-      if (Math.abs(diff) < 0.05) {
-        smoothedPlayhead = targetPlayhead;
+      if (Math.abs(diff) < 0.0001) {
+        smoothedProgress = targetProgress;
       } else {
-        smoothedPlayhead += diff * blend;
+        smoothedProgress += diff * blend;
       }
 
-      const frameToDraw = Math.min(LAST_FRAME, Math.max(0, Math.round(smoothedPlayhead)));
+      // Determine deterministic scene and frame
+      const { sceneIndex, scene, frameNum } = mapProgressToSceneAndFrame(smoothedProgress);
+      activeChapterRef.current = sceneIndex;
 
-      // Draw ONLY when the integer frame changes
-      if (frameToDraw !== paintedFrame) {
-        if (isImageReady(frameToDraw)) {
-          drawFrame(frameToDraw, images[frameToDraw]!);
+      const targetKey = `${scene.id}_${frameNum}`;
+      const dimensionsChanged = updateCanvasDimensions();
+
+      // Redraw ONLY when displayed frame or canvas size changes
+      if (targetKey !== lastDrawnKey || dimensionsChanged) {
+        const cachedEntry = cache.get(targetKey);
+
+        if (cachedEntry && cachedEntry.ready) {
+          drawImageToCanvas(cachedEntry.bitmap || cachedEntry.img, targetKey, scene, frameNum);
         } else {
-          // If the exact frame is still loading, find the closest available loaded frame
-          // so the animation NEVER freezes or stays stuck on frame 50!
-          let closest = -1;
-          for (let f = frameToDraw; scrollDirection > 0 ? f >= 0 : f <= LAST_FRAME; f -= scrollDirection) {
-            if (isImageReady(f)) {
-              closest = f;
-              break;
+          // If the exact frame is still decoding, find the closest available loaded frame
+          // so the animation never flickers or flashes black
+          let closestEntry: CacheEntry | null = null;
+          let minDistance = Infinity;
+
+          for (const entry of cache.values()) {
+            if (entry.ready && entry.sceneId === scene.id) {
+              const d = Math.abs(entry.frameNum - frameNum);
+              if (d < minDistance) {
+                minDistance = d;
+                closestEntry = entry;
+              }
             }
           }
 
-          if (closest !== -1 && closest !== paintedFrame) {
-            drawFrame(closest, images[closest]!);
+          if (closestEntry && minDistance < 20) {
+            drawImageToCanvas(closestEntry.bitmap || closestEntry.img, `${closestEntry.sceneId}_${closestEntry.frameNum}`, scene, closestEntry.frameNum);
+          } else if (mostRecentValidImage && dimensionsChanged) {
+            drawImageToCanvas(mostRecentValidImage, lastDrawnKey, scene, frameNum);
           }
 
-          // Prioritize loading frameToDraw immediately
-          preloadFrame(frameToDraw, true);
+          // Prioritise immediate fetch of the target frame
+          preloadSpecificFrame(scene, frameNum, true);
         }
       }
 
-      updatePreloadWindow(frameToDraw, scrollDirection);
-      rafId = requestAnimationFrame(loop);
+      updatePreloadWindow(sceneIndex, frameNum, scrollDirection);
+      rafId = requestAnimationFrame(renderLoop);
     };
 
-    // 1. Load initial frame 0 immediately
-    preloadFrame(0, true);
+    rafId = requestAnimationFrame(renderLoop);
 
-    // 2. Pre-buffer the first 30 frames for instantaneous initial scrubbing
-    for (let i = 1; i <= 30; i++) {
-      preloadFrame(i, true);
-    }
-
-    // 3. Progressive background preloader: gradually caches all 1200 frames across all 5 scenes
-    let bgIndex = 31;
-    const bgInterval = setInterval(() => {
-      if (disposed || bgIndex > LAST_FRAME) {
-        clearInterval(bgInterval);
-        return;
-      }
-      if (inFlight.size < 6) {
-        for (let k = 0; k < 4 && bgIndex <= LAST_FRAME; k++, bgIndex++) {
-          preloadFrame(bgIndex, false);
-        }
-      }
-    }, 40);
-
-    rafId = requestAnimationFrame(loop);
+    // Window resize handler
+    const handleResize = () => {
+      updateCanvasDimensions();
+    };
+    window.addEventListener('resize', handleResize);
 
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
-      clearInterval(bgInterval);
+      window.removeEventListener('resize', handleResize);
 
-      // Clean up references on unmount
-      for (let i = 0; i < images.length; i++) {
-        if (images[i]) {
-          images[i]!.src = '';
-          images[i] = null;
+      // Clean up and close all ImageBitmaps and cached images
+      for (const [, entry] of cache) {
+        if (entry.bitmap) {
+          try { entry.bitmap.close(); } catch {}
         }
+        entry.img.src = '';
       }
+      cache.clear();
       inFlight.clear();
       failedSet.clear();
     };
-  }, [progress, onReady]);
+  }, [progress, onReady, activeChapterRef]);
 
   return (
-    <div className="frame-sequence" aria-hidden="true">
+    <div ref={containerRef} className="frame-sequence" aria-hidden="true">
       <canvas
         ref={canvasRef}
-        width={3840}
-        height={2160}
+        width={1920}
+        height={1080}
         aria-label="Bar Chef Bengaluru scroll-controlled cocktail story"
         role="img"
       />

@@ -148,6 +148,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             >
               <span>Instant WhatsApp · 9945379333</span>
             </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--line)' }}>
+              <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                <a href="https://www.instagram.com/barchefbengaluru/" target="_blank" rel="noopener noreferrer" className="text-link">@barchefbengaluru ↗</a>
+                <a href="https://www.instagram.com/pure_fruit_fresh/" target="_blank" rel="noopener noreferrer" className="text-link">@pure_fruit_fresh ↗</a>
+              </div>
+              <a href="https://share.google/Jat8wcj5yzHFEXLfV" target="_blank" rel="noopener noreferrer" className="text-link" style={{ fontSize: '12px' }}>Directions (Bengaluru) ↗</a>
+            </div>
           </div>
         </nav>
       </header>
@@ -247,6 +254,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             rel="noreferrer"
           >
             Instagram ↗
+          </a>
+          <a
+            href="https://www.instagram.com/pure_fruit_fresh/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Pure Fruit Fresh ↗
+          </a>
+          <a
+            href="https://share.google/Jat8wcj5yzHFEXLfV"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Directions ↗
           </a>
           <button
             onClick={() => {

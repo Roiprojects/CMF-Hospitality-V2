@@ -6,3 +6,6 @@ out/
 .vercel
 inputs_and_frames/
 source-videos/
+BarChef_Extracted_Frames/
+*.zip
+*.rar

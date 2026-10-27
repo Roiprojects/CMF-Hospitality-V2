@@ -3,6 +3,9 @@ const config: NextConfig = {
   output: 'export',
   images: { unoptimized: true },
   trailingSlash: true,
+  experimental: {
+    agentUpgrade: 'security',
+  },
   async headers() {
     return [
       {

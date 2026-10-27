@@ -4,78 +4,16 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getTimelineConfiguration, SceneConfig } from './FrameSequence';
 
 const FrameSequence = dynamic(() => import('./FrameSequence'), { ssr: false });
 
-export interface ChapterDef {
-  num: string;
-  label: string;
-  scene: string;
-  headline: string;
-  supporting: string;
-  ctaText?: string;
-  ctaHref?: string;
-  isPrimaryCta?: boolean;
-  stillFrame: string;
-}
-
-const chapters: ChapterDef[] = [
-  {
-    num: '01',
-    label: 'THE INVITATION',
-    scene: 'The Perfect Pour',
-    headline: 'Every great evening begins with a pour.',
-    supporting: 'Cocktail experiences by Bar Chef Bengaluru.',
-    ctaText: 'Discover our experiences ↓',
-    ctaHref: '#story',
-    stillFrame: '/frames/pour/0120.webp'
-  },
-  {
-    num: '02',
-    label: 'THE INGREDIENTS',
-    scene: 'Ingredients in Motion',
-    headline: 'A little curiosity. A signature creation.',
-    supporting: 'Flavour, texture and detail—made personal.',
-    ctaText: 'Explore our services ↗',
-    ctaHref: '/services',
-    stillFrame: '/frames/assembly/0120.webp'
-  },
-  {
-    num: '03',
-    label: 'THE CRAFT',
-    scene: 'Inside the Glass',
-    headline: 'There’s a world inside every glass.',
-    supporting: 'Exploring aroma, clarity, and botanical balance.',
-    ctaText: 'Read the cocktail journal ↗',
-    ctaHref: '/blogs',
-    stillFrame: '/frames/inside/0120.webp'
-  },
-  {
-    num: '04',
-    label: 'THE COCKTAIL LAB',
-    scene: 'Where Ideas Become Experiences',
-    headline: 'Where ideas become experiences.',
-    supporting: 'From flavour concept to flawless event execution.',
-    ctaText: 'Inside the Cocktail Lab ↗',
-    ctaHref: '/about#our-cocktail-lab',
-    stillFrame: '/frames/inside-alternate/0120.webp'
-  },
-  {
-    num: '05',
-    label: 'THE CELEBRATION',
-    scene: 'One Glass, Different Occasions',
-    headline: 'One craft. Endless occasions.',
-    supporting: 'Weddings, house parties, birthdays, concerts and festivals.',
-    ctaText: 'Plan your experience ↗',
-    ctaHref: '/contact',
-    isPrimaryCta: true,
-    stillFrame: '/frames/occasions/0120.webp'
-  }
-];
+const { scenes } = getTimelineConfiguration();
 
 export default function StoryExperience() {
   const rootRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
+  const activeChapterRef = useRef(0);
   const stRef = useRef<ScrollTrigger | null>(null);
   const [activeChapter, setActiveChapter] = useState(0);
   const [motionEnabled, setMotionEnabled] = useState(true);
@@ -85,7 +23,7 @@ export default function StoryExperience() {
     setFramesReady(ready);
   }, []);
 
-  // System prefers-reduced-motion listener
+  // System prefers-reduced-motion listener & custom event
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updateMotion = () => {
@@ -106,40 +44,51 @@ export default function StoryExperience() {
     };
   }, []);
 
-  // GSAP ScrollTrigger authoritative scroll progress engine
+  // One coherent GSAP ScrollTrigger authoritative scroll progress engine
   useEffect(() => {
     if (!motionEnabled || !rootRef.current) return;
     gsap.registerPlugin(ScrollTrigger);
 
     const root = rootRef.current;
     const panels = Array.from(root.querySelectorAll<HTMLElement>('.story-panel'));
+    const segmentFills = Array.from(root.querySelectorAll<HTMLElement>('.story-segment-fill'));
     let lastActiveChapter = -1;
 
     const syncPanelsAndProgress = (p: number) => {
       progressRef.current = p;
       root.style.setProperty('--story-progress', p.toFixed(4));
 
-      const numChapters = chapters.length;
-      const currentActive = Math.min(
-        numChapters - 1,
-        Math.max(0, Math.floor(p * numChapters))
-      );
+      // Deterministically find active chapter based on configurable scene progress intervals
+      let currentActive = 0;
+      for (let i = 0; i < scenes.length; i++) {
+        if (p >= scenes[i].startProgress && p <= scenes[i].endProgress) {
+          currentActive = i;
+          break;
+        }
+        if (i === scenes.length - 1 && p >= scenes[i].startProgress) {
+          currentActive = i;
+        }
+      }
 
-      // Only update React state when active chapter transitions
+      // Only update React state when active chapter transitions (avoid scroll-event-driven React re-renders)
       if (currentActive !== lastActiveChapter) {
         lastActiveChapter = currentActive;
         setActiveChapter(currentActive);
+        activeChapterRef.current = currentActive;
       }
 
       // Smooth panel fade and parallax with zero layout reflow
       for (let i = 0; i < panels.length; i++) {
         const panel = panels[i];
-        const start = i / numChapters;
-        const end = (i + 1) / numChapters;
+        const sc = scenes[i];
+        if (!sc) continue;
+
+        const start = sc.startProgress;
+        const end = sc.endProgress;
         const mid = (start + end) / 2;
         const halfSpan = (end - start) / 2;
 
-        const dist = (p - mid) / halfSpan;
+        const dist = halfSpan > 0 ? (p - mid) / halfSpan : 0;
         const absDist = Math.abs(dist);
 
         let opacity = 0;
@@ -157,6 +106,22 @@ export default function StoryExperience() {
         panel.style.visibility = opacity > 0.01 ? 'visible' : 'hidden';
         panel.inert = opacity < 0.25;
         panel.setAttribute('aria-hidden', String(opacity < 0.25));
+      }
+
+      // Smooth dynamic fill for mobile story segment bars
+      for (let i = 0; i < scenes.length; i++) {
+        const fill = segmentFills[i];
+        if (!fill) continue;
+        const sc = scenes[i];
+        if (p >= sc.endProgress) {
+          fill.style.width = '100%';
+        } else if (p <= sc.startProgress) {
+          fill.style.width = '0%';
+        } else {
+          const span = sc.endProgress - sc.startProgress;
+          const local = span > 0 ? (p - sc.startProgress) / span : 0;
+          fill.style.width = `${(local * 100).toFixed(1)}%`;
+        }
       }
     };
 
@@ -188,7 +153,9 @@ export default function StoryExperience() {
 
   // Synchronized chapter jump
   const jumpToChapter = (chapterIndex: number) => {
-    const targetProgress = (chapterIndex + 0.12) / chapters.length;
+    const sc = scenes[chapterIndex];
+    if (!sc) return;
+    const targetProgress = (sc.startProgress + sc.endProgress) / 2;
     if (stRef.current) {
       const targetScroll =
         stRef.current.start + targetProgress * (stRef.current.end - stRef.current.start);
@@ -202,8 +169,9 @@ export default function StoryExperience() {
     }
   };
 
-  const handleSkipStory = (e: React.MouseEvent) => {
-    e.preventDefault();
+  // Skip Story control: smooth jump past the cinematic container to normal page flow
+  const handleSkipStory = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     const nextSection = document.getElementById('story');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
@@ -220,26 +188,32 @@ export default function StoryExperience() {
       }
       id="experience"
     >
-      <div className="story-stage">
+      <div
+        className={`story-stage fit-${scenes[activeChapter]?.fitMode || 'split-screen'} scene-${scenes[activeChapter]?.id || '01'}`}
+      >
+        {/* Elegant Cream Column Backdrop for Desktop Split-Screen */}
+        <div className="story-column-backdrop" aria-hidden="true" />
+
         {/* Dark matching backdrop (hidden once frames paint) */}
         <div className="story-backdrop" aria-hidden="true" />
 
-        {/* 4K Canvas Sequence Player (Smoky sequence permanently active) */}
+        {/* 1080p Canvas Sequence Player */}
         {motionEnabled && (
           <FrameSequence
             progress={progressRef}
             onReady={handleReady}
+            activeChapterRef={activeChapterRef}
           />
         )}
 
         {/* Subtle protective vignette */}
         <div className="story-vignette" aria-hidden="true" />
 
-        {/* Mobile Story Segments (App-style top progress indicators for 5 chapters) */}
+        {/* Mobile Story Segments (App-style top progress indicators for 8 chapters) */}
         <div className="story-mobile-segments" aria-label="Story progress">
-          {chapters.map((chap, idx) => (
+          {scenes.map((sc, idx) => (
             <div
-              key={chap.num}
+              key={sc.num}
               className={`story-segment-bar ${
                 activeChapter === idx
                   ? 'is-current'
@@ -258,50 +232,76 @@ export default function StoryExperience() {
           <span className="story-brand-badge">BAR CHEF · CINEMATIC STORY</span>
         </div>
 
+        {/* Prominent Skip Story Control */}
+        <div className="story-skip-control">
+          <button
+            type="button"
+            onClick={handleSkipStory}
+            className="story-skip-btn"
+            aria-label="Skip cinematic story to main content"
+          >
+            Skip Story ↓
+          </button>
+        </div>
+
         {/* Story Chapter Content Panels */}
         <div className="story-panels">
-          {chapters.map((chap, i) => (
+          {scenes.map((sc, i) => (
             <section
-              key={chap.num}
+              key={sc.num}
               className={`story-panel chapter-${i}`}
-              aria-label={`${chap.num} — ${chap.scene}`}
+              aria-label={`${sc.num} — ${sc.sceneName}`}
             >
               <div className="story-panel-content">
-                <p className="eyebrow">
-                  {chap.num} — {chap.label}
-                </p>
-                {i === 0 ? (
-                  <h1 className="story-headline">{chap.headline}</h1>
-                ) : (
-                  <h2 className="story-headline">{chap.headline}</h2>
-                )}
-                <p className="story-caption">{chap.supporting}</p>
+                <div className="story-panel-header">
+                  <p className="eyebrow">
+                    {sc.num} — {sc.title}
+                  </p>
+                  {i === 0 ? (
+                    <h1 className="story-headline">{sc.headline}</h1>
+                  ) : (
+                    <h2 className="story-headline">{sc.headline}</h2>
+                  )}
+                </div>
 
-                {chap.ctaText && chap.ctaHref && (
+                <div className="story-panel-footer">
+                  <p className="story-caption">{sc.supporting}</p>
+
                   <div className="story-cta-wrap">
-                    {chap.isPrimaryCta ? (
-                      <Link href={chap.ctaHref} className="button story-cta-btn">
-                        {chap.ctaText}
-                      </Link>
-                    ) : (
-                      <Link
-                        href={chap.ctaHref}
-                        className="text-link story-cta-link"
-                        onClick={chap.ctaHref.startsWith('#') ? handleSkipStory : undefined}
+                    {sc.ctaText && sc.ctaHref && (
+                      sc.isPrimaryCta ? (
+                        <Link href={sc.ctaHref} className="button story-cta-btn">
+                          {sc.ctaText}
+                        </Link>
+                      ) : (
+                        <Link
+                          href={sc.ctaHref}
+                          className="text-link story-cta-link"
+                          onClick={sc.ctaHref.startsWith('#') ? handleSkipStory : undefined}
+                        >
+                          {sc.ctaText}
+                        </Link>
+                      )
+                    )}
+                    {i === 0 && (
+                      <button
+                        type="button"
+                        onClick={handleSkipStory}
+                        className="text-link story-cta-link story-skip-inline"
                       >
-                        {chap.ctaText}
-                      </Link>
+                        Skip Story ↓
+                      </button>
                     )}
                   </div>
-                )}
+                </div>
               </div>
 
-              {/* Representative still image for reduced motion / static mode */}
+              {/* Reduced-motion & non-canvas static fallback: high-res editorial poster */}
               {!motionEnabled && (
                 <div className="static-frame-preview">
                   <img
-                    src={chap.stillFrame}
-                    alt={`${chap.scene} - Bar Chef Bengaluru`}
+                    src={sc.posterImage || sc.stillFrame}
+                    alt={`${sc.sceneName} - Bar Chef Bengaluru`}
                     loading="lazy"
                     width={960}
                     height={540}
@@ -312,21 +312,21 @@ export default function StoryExperience() {
           ))}
         </div>
 
-        {/* Chapter Rail Navigation (Left side) */}
+        {/* Chapter Rail Navigation (Vertical on desktop left, 01 through 08) */}
         {motionEnabled && (
           <nav className="chapter-rail" aria-label="Story chapter navigation">
-            {chapters.map((chap, i) => (
+            {scenes.map((sc, i) => (
               <button
-                key={chap.num}
+                key={sc.num}
                 type="button"
                 onClick={() => jumpToChapter(i)}
-                aria-label={`Jump to Chapter ${chap.num}: ${chap.scene}`}
+                aria-label={`Jump to Chapter ${sc.num}: ${sc.sceneName}`}
                 aria-current={activeChapter === i ? 'step' : undefined}
                 className={activeChapter === i ? 'is-active' : ''}
               >
-                <span className="rail-num">{chap.num}</span>
+                <span className="rail-num">{sc.num}</span>
                 <i className="rail-dot" />
-                <span className="rail-title">{chap.scene}</span>
+                <span className="rail-title">{sc.sceneName}</span>
               </button>
             ))}
           </nav>
@@ -334,12 +334,12 @@ export default function StoryExperience() {
 
         {/* Bottom Status & Scroll Indicator */}
         {motionEnabled && (
-          <div className="story-status" aria-live="polite">
+          <div className="story-status" aria-live="polite" role="status">
             <span className="story-current-chapter">
-              {chapters[activeChapter].num} / 0{chapters.length} · {chapters[activeChapter].scene}
+              {scenes[activeChapter].num} / 0{scenes.length} · {scenes[activeChapter].sceneName}
             </span>
             <span className="story-scroll-hint">
-              SCROLL TO CONTINUE ↓
+              SCROLL TO ADVANCE ↓
             </span>
           </div>
         )}
@@ -350,8 +350,8 @@ export default function StoryExperience() {
         {/* Subtitle / Spec Note */}
         <span className="scene-caption" aria-hidden="true">
           {framesReady
-            ? '4K NATIVE · 24 FPS · LOSSLESS FILM'
-            : 'BUFFERING 4K VIDEO'}
+            ? '1080P MASTER · 24 FPS · 1,920 LOSSLESS FRAMES'
+            : 'BUFFERING CINEMATIC STORY'}
         </span>
       </div>
     </div>
